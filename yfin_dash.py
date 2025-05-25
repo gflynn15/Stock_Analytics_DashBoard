@@ -148,47 +148,27 @@ def create_table(ticker):
 
 
 def trend_chart(ticker):
-    from datetime import datetime, timedelta, date
-    from polygon import RESTClient
-    from dotenv import load_dotenv
-    import os
+    df = yf.download(tickers=ticker, period='5y')
+    
+    cols_new = []
 
-    # Load environment variables from .env file
-    load_dotenv()
+    for x in df.columns:
+        new = x[0]
+        cols_new.append(new)
+    
 
-    # Access your API key
-    polygon_api_key = os.getenv("poly_api_key")
-
-    client = RESTClient(api_key=polygon_api_key)
-    today = pd.to_datetime(datetime.today()).date()
-    
-    yesterday = pd.to_datetime(datetime.today() - timedelta(days=1)).date()
-    
-    five_year = pd.to_datetime(yesterday - timedelta(days=3600)).date()
-    
-    # List Aggregates (Bars)
-    aggs = []
-    for a in client.list_aggs(ticker=ticker, multiplier=1, timespan="day",from_=five_year,to=yesterday, limit=50000):
-        aggs.append(a)
-    
-    df = pd.DataFrame(aggs)
-    
-    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms').dt.date
+    df.columns = cols_new
     
     ###Creating the moving average columns
-    
-    #Using pandas rolling function so the datetime column has to be set as the index
-    df.set_index(keys='timestamp', drop=True, inplace=True)
-    
     ##Creating the 50 day moving average column
-    df['50_DAY_MA'] = df['close'].rolling(window=50).mean()
+    df['50_DAY_MA'] = df['Close'].rolling(window=50).mean()
     ##Creating the 200 day moving average column
-    df['200_DAY_MA'] = df['close'].rolling(window=200).mean()
+    df['200_DAY_MA'] = df['Close'].rolling(window=200).mean()
     
     
 ##Creating the closing price trend chart
     stock_trend_line = go.Figure()
-    stock_trend_line.add_trace(go.Scatter(x=df.index,y=df['close'],name=f"{ticker}_Closeing_Price"))
+    stock_trend_line.add_trace(go.Scatter(x=df.index,y=df['Close'],name=f"{ticker}_Closeing_Price"))
     ##Adding in the 50 day trace
     stock_trend_line.add_trace(go.Scatter(x=df.index, y=df['50_DAY_MA'], name=f'{ticker}_50_DAY_MA'))
     ##Adding in the 200 day moving average
@@ -203,7 +183,7 @@ def trend_chart(ticker):
     
     ##Adding in the volume chart to see if it will allow me to populate more than one chart in a single call back
     stock_volume_trend_line = go.Figure()
-    stock_volume_trend_line.add_trace(go.Scatter(x=df.index,y=df['volume'],name=f"{ticker}_Volume"))
+    stock_volume_trend_line.add_trace(go.Scatter(x=df.index,y=df['Volume'],name=f"{ticker}_Volume"))
     #stock_trend_line.add_trace(go.Scatter(x=target_var['Date'],y=target_var[xaxis_col],name=xaxis_col))
     stock_volume_trend_line.update_layout(title=str('Volume Trend Chart Analysis').upper(),
                                    xaxis_title='Date',
@@ -224,35 +204,18 @@ def trend_chart(ticker):
 
 
 def dist_table(ticker):
-    from datetime import datetime, date, timedelta
-    from polygon import RESTClient
-    from dotenv import load_dotenv
-    import os
 
-    # Load environment variables from .env file
-    load_dotenv()
+    df = yf.download(tickers=ticker, period='5y')
+    
+    cols_new = []
 
-    # Access your API key
-    polygon_api_key = os.getenv("poly_api_key")
-
-    client = RESTClient(api_key=polygon_api_key)
+    for x in df.columns:
+        new = x[0]
+        cols_new.append(new)
     
-    today = datetime.today()
+    df.columns = cols_new
     
-    yesterday = datetime.today() - timedelta(days=1)
-    
-    five_year = yesterday - timedelta(days=1800)
-    
-    # List Aggregates (Bars)
-    aggs = []
-    for a in client.list_aggs(ticker=ticker, multiplier=1, timespan="week",from_=five_year,to=yesterday):
-        aggs.append(a)
-    
-    df = pd.DataFrame(aggs)
-    
-    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms').dt.date
-
-    df_close_dist = df['close'].describe()
+    df_close_dist = df['Close'].describe()
 
     df_close_dist = df_close_dist.to_frame(name='Closing Price').round(2)
     
@@ -260,7 +223,7 @@ def dist_table(ticker):
     
     df_close_dist.rename(columns={'index':'Statistics'}, inplace=True)
     
-    df_volume_dist = df['volume'].describe()
+    df_volume_dist = df['Volume'].describe()
     
     df_volume_dist = df_volume_dist.to_frame(name='Volume').round(2)
     
@@ -270,17 +233,19 @@ def dist_table(ticker):
     
     df_close_dist = pd.concat(objs=[df_close_dist,df_volume_dist[['Volume']]], axis=1, join='inner',ignore_index=False)
     
-    previous_data = df.iloc[-1,[3,4]].to_frame().transpose()
+    previous_data = df.iloc[-1,[0,4]].to_frame().transpose()
 
     previous_data.rename(index={previous_data.index[0]:'previous data'}, inplace=True)
     
     previous_data.reset_index(inplace=True)
     
     previous_data.rename(columns={'index':'Statistics',
-                                  'close':'Closing Price',
-                                  'volume':'Volume'}, inplace=True)
+                                  'Close':'Closing Price'},
+                                  inplace=True)
     
-    df_close_dist = pd.concat(objs=[df_close_dist, previous_data], axis=0,ignore_index=True)
+    previous_data['Closing Price'] = previous_data['Closing Price'].round(2)
+    
+    df_close_dist = pd.concat(objs=[df_close_dist, previous_data], axis=0,ignore_index=False)
     
     df_close_dist['Volume'] = df_close_dist['Volume'].apply(lambda x: f"{x:.2e}")
     
@@ -300,7 +265,6 @@ def dist_table(ticker):
 
 if __name__ == '__main__':
     app.run_server(debug=False)
-
 
 
 
