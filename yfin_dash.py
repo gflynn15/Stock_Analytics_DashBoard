@@ -62,6 +62,7 @@ for x in range(len(rows)):
 
 # %%
 app = dash.Dash(__name__)
+server = app.server
 
 app.layout = html.Div([
     ##Title of Page
@@ -298,7 +299,7 @@ def dist_table(ticker):
         
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
 
 
 
