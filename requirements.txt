@@ -1,0 +1,10 @@
+numpy
+dash
+plotly
+pandas
+yfinance
+requests
+beautifulsoup4
+python-dotenv
+polygon-api-client
+gunicorn # Essential for serving Dash apps on Render
