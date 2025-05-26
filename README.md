@@ -28,7 +28,7 @@ https://stock-analytics-dashboard-j4bx.onrender.com
 
 1. Create a Github Repository
 2. Install necessary libraries:
--dash, plotly, pandas, yfinance, requests, beautifulsoup4, python-dotenv, gunicorn, gevent, urllib3==2.0.7
+- dash, plotly, pandas, yfinance, requests, beautifulsoup4, python-dotenv, gunicorn, gevent, urllib3==2.0.7
 3. Create a requirements.txt file
    - Copy and paste in all of the above libraries
    - Save the file in your github repository
