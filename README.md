@@ -1,3 +1,8 @@
+Hello and welcome to my Github Repository.
+Below is a project I put together to assist me with improving my data pipeline development and analytics skill set. 
+From this project I learned how to utilize an API for a datafeed, develop a dashboard to visualize the data, as well 
+as how to deploy it to the web for others to see and utilize.
+
 Project Background:
 This project was developed to assist myself with improving my knowledge of dashboard development and web based deployment.  
 
