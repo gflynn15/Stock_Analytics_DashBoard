@@ -4,7 +4,7 @@ From this project I learned how to utilize an API for a datafeed, develop a dash
 as how to deploy it to the web for others to see and utilize.
 
 **Project Background:**
-- This project was developed to assist myself with improving my knowledge of dashboard development and web based deployment.  
+- This project's purpose was to assist with improving my knowledge of dashboard development and web based deployment.  
 
 **Project Scope:**
 - To deploy a live web based dashboard that provides end users with a simple tool to utilize to visualize company stock pricing information.
