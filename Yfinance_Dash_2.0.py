@@ -15,15 +15,6 @@ import plotly.graph_objects as go
 import warnings
 warnings.filterwarnings("ignore")
 
-##Visual Adjustments
-# Set the display options to show all columns
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
-pd.set_option('display.max_colwidth', None)  # Prevent line wrapping
-
-# %% [markdown]
-# - Utilizing polygon io to provide a comprehensive list of stock symbols
-
 # %%
 import requests
 from bs4 import BeautifulSoup
@@ -567,48 +558,4 @@ def dist_table(ticker):
         
 
 if __name__ == '__main__':
-    app.run(jupyter_mode='external',debug=True)
-
-# %%
-import plotly.graph_objects as go
-
-df = yf.download(tickers='AAPL', period='5y')
-
-df.columns = [col[0] for col in df.columns]
-
-df_macd = df[['Close']]
-
-df_macd['EMA_12'] = df_macd['Close'].ewm(span=12, adjust=False).mean()
-
-df_macd['EMA_26'] = df_macd['Close'].ewm(span=26, adjust=False).mean()
-
-df_macd['MACD_LINE'] = df_macd['EMA_12'] - df_macd['EMA_26']
-
-df_macd['SIGNAL_LINE'] = df_macd['MACD_LINE'].ewm(span=9, adjust=False).mean()
-
-df_macd['HISTOGRAM'] = df_macd['MACD_LINE'] - df_macd['SIGNAL_LINE']
-
-macd_fig = go.Figure()
-
-macd_fig.add_trace(go.Scatter(x=df_macd.index, y=df_macd['MACD_LINE'], name='MACD_LINE', line=dict(color='blue')))
-
-macd_fig.add_trace(go.Scatter(x=df_macd.index, y=df_macd['SIGNAL_LINE'], name='SIGNAL_LINE', line=dict(color='red')))
-
-macd_fig.add_trace(go.Bar(x=df_macd.index, y=df_macd['HISTOGRAM'], name='HISTOGRAM', marker_color='darkred'))
-
-macd_fig.update_layout(
-    title='MACD Chart',
-    yaxis2=dict(
-        title='Closing Price', # Title for the secondary y-axis
-        titlefont=dict(color='red'),
-        tickfont=dict(color='red'),
-        overlaying='y', # IMPORTANT: Overlay yaxis2 on yaxis
-        side='right'    # IMPORTANT: Place yaxis2 on the right side
-    ))
-
-macd_fig.show()
-
-# %%
-
-
-
+    app.run(debug=True)
