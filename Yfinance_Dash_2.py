@@ -131,7 +131,7 @@ app.layout = html.Div(
                     ],
                     style={
                         "display": "flex",
-                        "flexDirection": "column",
+                        "flexDirection": "row",
                         "flex": "1 1 0%",
                         "gap": "20px",
                     },
@@ -139,7 +139,7 @@ app.layout = html.Div(
             ],
             style={
                 "display": "flex",
-                "flexDirection": "row",
+                "flexDirection": "column",
                 "padding": "20px",
                 "gap": "20px",
             },
@@ -440,3 +440,4 @@ def dist_table(ticker: str):
 
 if __name__ == "__main__":
     app.run_server(debug=False)
+
