@@ -57,6 +57,7 @@ intervals = ['1m','2m','5m','15m','30m','60m','90m','1h','1d','5d','1wk','1mo','
 
 # %%
 app = dash.Dash(__name__)
+server=app.server
 
 app.layout = html.Div([
     # Title
@@ -558,4 +559,5 @@ def dist_table(ticker):
         
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run_server(debug=False)
+
