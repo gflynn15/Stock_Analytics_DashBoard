@@ -77,7 +77,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.Label("Select Period"),
-                        dcc.Dropdown(period, "3mo", id="period", clearable=False),
+                        dcc.Dropdown(period, "1mo", id="period", clearable=False),
                     ],
                     style={"flex": 1, "marginRight": "10px"},
                 ),
@@ -440,6 +440,7 @@ def dist_table(ticker: str):
 
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
