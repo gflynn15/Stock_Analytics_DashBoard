@@ -84,7 +84,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.Label("Select Interval"),
-                        dcc.Dropdown(intervals, "1d", id="intervals", clearable=False),
+                        dcc.Dropdown(intervals, "2m", id="intervals", clearable=False),
                     ],
                     style={"flex": 1},
                 ),
@@ -440,4 +440,5 @@ def dist_table(ticker: str):
 
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
