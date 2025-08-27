@@ -134,9 +134,9 @@ app.layout = html.Div([
         html.Div([html.H3("📊 Historical Financials"),
                   html.Div(id='historical_financials'),
                   html.H3(children='📊 Quarterly Earnings Per Share', style={',arginTop':'20px'}),
-                  dcc.Graph(id='EPS', style={'marginTop': '20px'})
+                  dcc.Graph(id='EPS', style={'marginTop': '20px','height':'100%'})
                   ], 
-                 style={'flex': 1,'flexDirection':'column','marginRight': '20px'})
+                 style={'flex': 1,'flexDirection':'column','marginRight': '20px','height':'100%'})
     ], style={
         'display': 'flex',
         'flexDirection': 'row',
@@ -439,6 +439,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
