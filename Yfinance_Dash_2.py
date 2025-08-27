@@ -111,7 +111,7 @@ app.layout = html.Div(
             ],
             style={
                 "display": "grid",
-                "gridTemplateColumns": "1fr 1fr",
+                "gridTemplateRows": "1fr 1fr",
                 "gap": "20px",
                 "padding": "20px",
                 "alignItems": "start",
@@ -457,6 +457,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
