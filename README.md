@@ -20,7 +20,7 @@ as how to deploy it to the web for others to see and utilize.
 The purpose of this application is to provide uers with a dashboard that provides short term and long term trends into a companies stock pricing and financials. 
 This application can be utilized to review current potential price swing trends using the RSI and MACD graphs. Both of these are trigger graphs that can be utilized to identify potential price swings for end users to signal buy and sell opportunities. 
 Daily news articles are presented to get a sentiment analysis of the stock. This helps users identify what the economy is saying about the company or the market sector of the company. 
-Hitorical financials are priveded at the bottom along with forecasted predictions for the companies financals to judge company stability and growth or loss trends.
+Hitorical financials are proiveded at the bottom along with forecasted predictions for the companies financals to judge company stability and growth or loss trends.
 
 **Link to Dashboard Visual:**
 https://stock-analytics-dashboard-j4bx.onrender.com
