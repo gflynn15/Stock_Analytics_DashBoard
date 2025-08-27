@@ -117,23 +117,23 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.H3("📈 Relative Strength Index (RSI)", style={"textAlign": "left"}),
-                                dcc.Graph(id="RSI"),
+                                dcc.Graph(id="RSI", style={"height":"400px"}),
                             ],
-                            style={"flex": "1 1 0%"},
+                            style={"flex":"1", "minWidth":"0"},
                         ),
                         html.Div(
                             [
                                 html.H3("📈 MACD Signal Line", style={"textAlign": "left"}),
-                                dcc.Graph(id="MACD"),
+                                dcc.Graph(id="MACD",style={"height":"400px"}),
                             ],
-                            style={"flex": "1 1 0%"},
+                            style={"flex":"1","minWidth":"0"},
                         ),
                     ],
                     style={
                         "display": "flex",
                         "flexDirection": "row",
-                        "flex": "1 1 0%",
-                        "gap": "20px",
+                        "gap":"20px",
+                        "alignItems": "stretch",
                     },
                 ),
             ],
@@ -440,6 +440,7 @@ def dist_table(ticker: str):
 
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
