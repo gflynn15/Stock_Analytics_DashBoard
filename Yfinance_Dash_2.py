@@ -416,6 +416,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
     Input("stock_symbols", "value"),
 )
 def dist_table(ticker):
+
     df = yf.download(tickers=ticker, period='5y')
     
     cols_new = []
@@ -459,23 +460,25 @@ def dist_table(ticker):
     df_close_dist = pd.concat(objs=[df_close_dist, previous_data], axis=0,ignore_index=False)
     
     df_close_dist['Volume'] = df_close_dist['Volume'].apply(lambda x: f"{x:.2e}")
-
+    
+    
     return dash_table.DataTable(
-        columns=[{"name": c, "id": c} for c in table_df.columns],
-        data=table_df.to_dict("records"),
-        style_table={"overflowY": "auto"},
-        style_cell={
-            "textAlign": "left",
-            "whiteSpace": "normal",
-            "height": "auto",
-            "width": "120px",
-            "padding": "8px",
-        },
-        style_header={"backgroundColor": "black", "color": "white", "fontWeight": "bold", "textAlign": "center"},
+        columns=[{'name':col, 'id':col} for col in df_close_dist.iloc[1:,:].columns],
+        data=df_close_dist.iloc[1:,:].to_dict('records'),
+        style_table={'overflowY': 'auto'},
+        style_cell={'textAlign': 'left',
+                    'whitespace':'normal',
+                    'height':'auto',
+                    'width':'100px',
+                    'padding':'8px'},
+        style_header={'backgroundColor': 'black',
+                      'color': 'white',
+                      'fontWeight': 'bold',
+                      'textAlign': 'center'}
     )
-
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
