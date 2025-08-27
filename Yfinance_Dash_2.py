@@ -143,9 +143,9 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.H3("📈 Price & Volume Distribution"),
-                        html.Div(id="price_dis_table",style={"height":"400px"),
+                        html.Div(id="price_dis_table",style={"height":"400px"}),
                         html.H3("🔮 Earnings Forecast"),
-                        html.Div(id="forecast",style="400px"),
+                        html.Div(id="forecast",style={"height":"400px"}),
                     ],
                     style={"flex": 1, "display": "flex", "flexDirection": "column", "marginRight": "20px"},
                 ),
@@ -457,6 +457,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
