@@ -416,25 +416,49 @@ def trend_chart(ticker: str, period: str, intervals: str):
     Input("stock_symbols", "value"),
 )
 def dist_table(ticker: str):
-    df = yf.download(tickers=ticker, period="5y")
-    if df.empty:
-        return dash_table.DataTable(columns=[{"name": "No data", "id": "msg"}], data=[])
+    df = yf.download(tickers=ticker, period='5y')
+    
+    cols_new = []
 
-    # Flatten only if MultiIndex
-    if isinstance(df.columns, pd.MultiIndex):
-        df.columns = [c[0] for c in df.columns]
+    for x in df.columns:
+        new = x[0]
+        cols_new.append(new)
+    
+    df.columns = cols_new
+    
+    df_close_dist = df['Close'].describe()
 
-    # Stats
-    close_desc = df["Close"].describe().round(2).to_frame(name="Closing Price").reset_index().rename(columns={"index": "Statistics"})
-    vol_desc = df["Volume"].describe().round(2).to_frame(name="Volume").reset_index().rename(columns={"index": "Statistics"})
-    stats = close_desc.merge(vol_desc, on="Statistics", how="outer")
+    df_close_dist = df_close_dist.to_frame(name='Closing Price').round(2)
+    
+    df_close_dist.reset_index(inplace=True)
+    
+    df_close_dist.rename(columns={'index':'Statistics'}, inplace=True)
+    
+    df_volume_dist = df['Volume'].describe()
+    
+    df_volume_dist = df_volume_dist.to_frame(name='Volume').round(2)
+    
+    df_volume_dist.reset_index(inplace=True)
+    
+    df_volume_dist.rename(columns={'index':'Statistics'}, inplace=True)
+    
+    df_close_dist = pd.concat(objs=[df_close_dist,df_volume_dist[['Volume']]], axis=1, join='inner',ignore_index=False)
+    
+    previous_data = df.iloc[-1,[0,4]].to_frame().transpose()
 
-    # Last row
-    last = df.iloc[[-1]][["Close", "Volume"]].rename(index=lambda _: "previous data").reset_index().rename(columns={"index": "Statistics", "Close": "Closing Price"})
-    last["Closing Price"] = last["Closing Price"].round(2)
-
-    table_df = pd.concat([stats, last], ignore_index=True)
-    table_df["Volume"] = table_df["Volume"].apply(lambda x: f"{x:.2e}" if pd.notna(x) else x)
+    previous_data.rename(index={previous_data.index[0]:'previous data'}, inplace=True)
+    
+    previous_data.reset_index(inplace=True)
+    
+    previous_data.rename(columns={'index':'Statistics',
+                                  'Close':'Closing Price'},
+                                  inplace=True)
+    
+    previous_data['Closing Price'] = previous_data['Closing Price'].round(2)
+    
+    df_close_dist = pd.concat(objs=[df_close_dist, previous_data], axis=0,ignore_index=False)
+    
+    df_close_dist['Volume'] = df_close_dist['Volume'].apply(lambda x: f"{x:.2e}")
 
     return dash_table.DataTable(
         columns=[{"name": c, "id": c} for c in table_df.columns],
@@ -452,6 +476,7 @@ def dist_table(ticker: str):
 
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
