@@ -159,7 +159,6 @@ app.layout = html.Div(
                 "gridTemplateColumns": "1fr 1fr",
                 "gap": "20px",
                 "padding": "20px",
-                "height":"400px",
                 "alignItems": "start",# important: prevents tall child from stretching the row
             },
         ),
@@ -458,6 +457,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
