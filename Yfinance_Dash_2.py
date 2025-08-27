@@ -299,9 +299,11 @@ def trend_chart(ticker: str, period: str, intervals: str):
             eps_fig.add_trace(go.Bar(x=earns.index, y=earns.get("epsActual"), name="EPS Actual"))
             eps_fig.add_trace(go.Bar(x=earns.index, y=earns.get("epsEstimate"), name="EPS Estimate"))
             eps_fig.update_layout(
-                title="Actual vs Estimate Earnings per Share",
-                xaxis_title="Date",
-                yaxis_title="EPS",
+                title={"text":"<b>Actual vs Estimate Earnings per Share<b>",
+                      "x":.5,
+                      "y":.95},
+                xaxis_title="<b>Date<b>",
+                yaxis_title="<b>EPS<b>",
                 barmode="group",
                 legend=dict(title="Legend", orientation="h", yanchor="bottom", y=1.0, xanchor="right", x=1),
             )
@@ -312,9 +314,11 @@ def trend_chart(ticker: str, period: str, intervals: str):
     rsi_fig = go.Figure()
     rsi_fig.add_trace(go.Scatter(x=rs.index, y=rs["RSI"], name="RSI"))
     rsi_fig.update_layout(
-        title="Relative Strength Index (RSI)",
-        xaxis_title="Date",
-        yaxis_title="RSI",
+        title={"text":"<b>Relative Strength Index (RSI)<b>",
+              "x":.5,
+              "y":.95},
+        xaxis_title="<b>DATE<b>",
+        yaxis_title="<b>RSI<b>",
         yaxis=dict(range=[0, 100]),
         shapes=[
             dict(type="line", yref="y", y0=70, y1=70, xref="x", x0=df.index[0], x1=df.index[-1]),
@@ -334,14 +338,18 @@ def trend_chart(ticker: str, period: str, intervals: str):
     macd_fig.add_trace(go.Scatter(x=macd_df.index, y=macd_df["MACD_LINE"], name="MACD"))
     macd_fig.add_trace(go.Scatter(x=macd_df.index, y=macd_df["SIGNAL_LINE"], name="Signal"))
     macd_fig.add_trace(go.Bar(x=macd_df.index, y=macd_df["HISTOGRAM"], name="Histogram"))
-    macd_fig.update_layout(title="MACD")
+    macd_fig.update_layout(title={"text":"<b>MACD<b>",
+                                 "x":.5,
+                                 "y":.95},
+                          yaxis_title="<b>MACD<b>",
+                          xaxis_title="<b>DATE<b>")
 
     # Trend line
     trend_fig = go.Figure()
     trend_fig.add_trace(go.Scatter(x=df.index, y=df["Close"], name=f"{ticker} Close"))
     trend_fig.add_trace(go.Scatter(x=df.index, y=df["50_DAY_MA"], name="50-Day MA"))
     trend_fig.add_trace(go.Scatter(x=df.index, y=df["200_DAY_MA"], name="200-Day MA"))
-    trend_fig.update_layout(title="Daily Closing Price Trend", xaxis_title="Date", yaxis_title="Price")
+    trend_fig.update_layout(title="text":"<b>Closing Price Trend<b>", xaxis_title="<b>DATE<b>", yaxis_title="<b>PRICE<b>")
 
     # Earnings calendar / forecast table (guard empty)
     stock = yf.Ticker(ticker)
@@ -439,6 +447,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
