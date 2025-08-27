@@ -35,195 +35,117 @@ intervals = ["1m", "2m", "5m", "15m", "30m", "60m", "90m", "1h", "1d", "5d", "1w
 app = dash.Dash(__name__)
 server = app.server
 
-app.layout = html.Div(
-    [
-        # Title
-        html.H1(
-            "Welcome to the Stock Analytics Dashboard",
-            style={"textAlign": "center", "padding": "20px", "color": "#1a1a1a"},
-        ),
+app.layout = html.Div([
+    # Title
+    html.H1('Welcome to the Stock Analytics Dashboard',
+            style={'textAlign': 'center', 'padding': '20px', 'color': '#1a1a1a'}),
 
-        # ------------ Filters (responsive grid) ------------
-        html.Div(
-            [
-                html.Div(
-                    [html.Label("Select Stock"), dcc.Dropdown(symbols, "AAPL", id="stock_symbols", clearable=False)],
-                ),
-                html.Div(
-                    [html.Label("Select Period"), dcc.Dropdown(period, "5y", id="period", clearable=False)],
-                ),
-                html.Div(
-                    [html.Label("Select Interval"), dcc.Dropdown(intervals, "1d", id="intervals", clearable=False)],
-                ),
-            ],
-            style={
-                "display": "grid",
-                # Responsive: auto-fit as many as possible, min 220px width each
-                "gridTemplateColumns": "repeat(auto-fit, minmax(220px, 1fr))",
-                "gap": "12px",
-                "padding": "0 20px 20px 20px",
-                "alignItems": "center",
-            },
-        ),
+    # Dropdown Filters Row
+    html.Div([
+        html.Div([
+            html.Label('Select Stock'),
+            dcc.Dropdown(symbols, 'AAPL', id='stock_symbols', clearable=False)
+        ], style={'flex': 1, 'marginRight': '10px'}),
 
-        html.Hr(style={"margin": "0 20px"}),
+        html.Div([
+            html.Label('Select Period'),
+            dcc.Dropdown(period, '5y', id='period', clearable=False)
+        ], style={'flex': 1, 'marginRight': '10px'}),
 
-        # ------------ Top: Price Trend | RSI + MACD ------------
-        html.Div(
-            [
-                # Left: Price Trend (takes more width)
-                html.Div(
-                    [
-                        html.H3("📈 Stock Price Trend", style={"margin": "0 0 8px 0"}),
-                        dcc.Graph(id="trend_line", style={"height": "520px"}),
-                    ],
-                    style={
-                        "minWidth": 0,
-                        "background": "white",
-                        "borderRadius": "12px",
-                        "padding": "16px",
-                        "boxShadow": "0 1px 4px rgba(0,0,0,0.08)",
-                    },
-                ),
+        html.Div([
+            html.Label('Select Interval'),
+            dcc.Dropdown(intervals, '1d', id='intervals', clearable=False)
+        ], style={'flex': 1})
+    ], style={
+        'display': 'flex', 'flexDirection': 'row',
+        'justifyContent': 'space-between',
+        'padding': '0px 20px 20px 20px'
+    }),
 
-                # Right: RSI and MACD stacked with consistent spacing
-                html.Div(
-                    [
-                        html.Div(
-                            [
-                                html.H3("📈 Relative Strength Index (RSI)", style={"margin": "0 0 8px 0"}),
-                                dcc.Graph(id="RSI", style={"height": "300px"}),
-                            ],
-                            style={
-                                "minWidth": 0,
-                                "background": "white",
-                                "borderRadius": "12px",
-                                "padding": "16px",
-                                "boxShadow": "0 1px 4px rgba(0,0,0,0.08)",
-                            },
-                        ),
-                        html.Div(
-                            [
-                                html.H3("📈 MACD Signal Line", style={"margin": "0 0 8px 0"}),
-                                dcc.Graph(id="MACD", style={"height": "300px"}),
-                            ],
-                            style={
-                                "minWidth": 0,
-                                "background": "white",
-                                "borderRadius": "12px",
-                                "padding": "16px",
-                                "boxShadow": "0 1px 4px rgba(0,0,0,0.08)",
-                            },
-                        ),
-                    ],
-                    style={
-                        "display": "grid",
-                        "gridTemplateRows": "auto auto",
-                        "gap": "20px",
-                        "minWidth": 0,
-                        "alignItems": "start",
-                    },
-                ),
-            ],
-            style={
-                "display": "grid",
-                # Two columns: trend gets 2x space, indicators 1x
-                "gridTemplateColumns": "2fr 1fr",
-                "gap": "20px",
-                "padding": "20px",
-                "alignItems": "start",
-                "maxWidth": "1400px",
-                "margin": "0 auto",
-            },
-        ),
+    html.Hr(),
 
-        # ------------ News ------------
-        html.Div(
-            [
-                html.H3("📰 Latest News", style={"margin": "0 0 8px 0"}),
-                html.Div(id="news_table"),
-            ],
-            style={
-                "padding": "20px",
-                "maxWidth": "1400px",
-                "margin": "0 auto",
-                "background": "white",
-                "borderRadius": "12px",
-                "boxShadow": "0 1px 4px rgba(0,0,0,0.08)",
-            },
-        ),
+    # Main Graph Container for a 50/50 split
+    html.Div([
+        # Price Trend Line - Left half of the screen
+        html.Div([
+            html.H3("📈 Stock Price Trend", style={'textAlign': 'left'}),
+            dcc.Graph(id='trend_line')
+        ], style={'flex': '1 1 0%'}),
 
-        html.Hr style={"margin": "20px 20px"} ,
+        # RSI and MACD graphs - Right half of the screen, stacked
+        html.Div([
+            # RSI Graph
+            html.Div([
+                html.H3("📈 Relative Strength Index (RSI)", style={'textAlign': 'left'}),
+                dcc.Graph(id='RSI')
+            ], style={'flex': '1 1 0%'}), # Use flex on the child to ensure it takes available space
 
-        # ------------ Bottom: Distribution+Forecast | Financials+EPS ------------
-        html.Div(
-            [
-                # Left column
-                html.Div(
-                    [
-                        html.H3("📈 Price & Volume Distribution", style={"margin": "0 0 8px 0"}),
-                        html.Div(
-                            id="price_dis_table",
-                            style={"minHeight": "0", "maxHeight": "400px", "overflowY": "auto"},
-                        ),
-                        html.H3("🔮 Earnings Forecast", style={"margin": "20px 0 8px 0"}),
-                        html.Div(
-                            id="forecast",
-                            style={"minHeight": "0", "maxHeight": "400px", "overflowY": "auto"},
-                        ),
-                    ],
-                    style={
-                        "display": "flex",
-                        "flexDirection": "column",
-                        "gap": "20px",
-                        "minWidth": 0,
-                        "background": "white",
-                        "borderRadius": "12px",
-                        "padding": "16px",
-                        "boxShadow": "0 1px 4px rgba(0,0,0,0.08)",
-                    },
-                ),
+            # MACD Graph
+            html.Div([
+                html.H3("📈 MACD Signal Line", style={'textAlign': 'left'}),
+                dcc.Graph(id='MACD')
+            ], style={'flex': '1 1 0%'}) # Use flex on the child to ensure it takes available space
+        ],
+        style={
+            'display': 'flex',
+            'flexDirection': 'row', # Stacks RSI and MACD vertically
+            'flex': '1 1 0%',         # Allows this container to take up half the width
+            'gap': '20px',            # Adds a consistent gap between the RSI and MACD graphs
+        }),
 
-                # Right column
-                html.Div(
-                    [
-                        html.H3("📊 Historical Financials", style={"margin": "0 0 8px 0"}),
-                        html.Div(
-                            id="historical_financials",
-                            style={"minHeight": "0", "maxHeight": "400px", "overflowY": "auto"},
-                        ),
-                        html.H3("📊 Quarterly Earnings Per Share", style={"margin": "20px 0 8px 0"}),
-                        dcc.Graph(id="EPS", style={"height": "520px"}),
-                    ],
-                    style={
-                        "display": "flex",
-                        "flexDirection": "column",
-                        "gap": "20px",
-                        "minWidth": 0,
-                        "background": "white",
-                        "borderRadius": "12px",
-                        "padding": "16px",
-                        "boxShadow": "0 1px 4px rgba(0,0,0,0.08)",
-                    },
-                ),
-            ],
-            style={
-                "display": "grid",
-                "gridTemplateColumns": "1fr 1fr",
-                "gap": "20px",
-                "padding": "20px",
-                "alignItems": "start",
-                "maxWidth": "1400px",
-                "margin": "0 auto",
-            },
-        ),
-    ],
-    style={
-        "backgroundColor": "#f5f5f5",
-        "fontFamily": "Arial, sans-serif",
-        "paddingBottom": "40px",
-    },
-)
+    ], style={
+        'display': 'flex',
+        'flexDirection': 'column',  # Arranges the two main Divs horizontally
+        'padding': '20px',
+        'gap': '20px'            # Adds spacing between the two columns
+    }),
+
+
+    ##News Inquiry Table
+    html.Div([
+        html.Div([
+            html.H3("📰 Latest News", style={'textAlign': 'left'}),
+            html.Div(id='news_table')
+        ], style={'flex': 1})
+    ], style={
+        'display': 'flex',
+        'flexDirection': 'row',
+        'padding': '20px'
+    }),
+
+    html.Hr(),
+
+    # Distribution and Forecast Table
+    html.Div([
+        
+        html.Div([
+            html.H3("📈 Price & Volume Distribution"),
+            html.Div(id='price_dis_table'),
+            html.H3("🔮 Earnings Forecast"),
+            html.Div(id='forecast')
+        ], style={'flex': 1, 'flexDirection':'column','marginRight': '20px'}),
+
+        #html.Div([
+        #    html.H3("🔮 Earnings Forecast"),
+        #    html.Div(id='forecast')
+        #], style={'flex': 1, 'marginRight': '20px'}),
+        
+        html.Div([html.H3("📊 Historical Financials"),
+                  html.Div(id='historical_financials'),
+                  html.H3(children='📊 Quarterly Earnings Per Share', style={',arginTop':'20px'}),
+                  dcc.Graph(id='EPS', style={'marginTop': '20px'})
+                  ], 
+                 style={'flex': 1,'flexDirection':'column','marginRight': '20px'})
+    ], style={
+        'display': 'flex',
+        'flexDirection': 'row',
+        'padding': '20px'
+    })
+], style={
+    'backgroundColor': '#f5f5f5',
+    'fontFamily': 'Arial, sans-serif',
+    'paddingBottom': '40px'
+})
 
 @callback(
     Output("news_table", "children"),
@@ -516,6 +438,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
