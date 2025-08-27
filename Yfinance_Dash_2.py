@@ -16,31 +16,9 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-# %%
-import requests
-from bs4 import BeautifulSoup
-
-# --- Robust S&P 500 symbols scrape (with fallbacks) ---
-def fetch_sp500_symbols() -> list[str]:
-    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-    try:
-        response = requests.get(url, timeout=15)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, "html.parser")
-        table = soup.find("table", {"id": "constituents"})
-        if not table:
-            return ["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA"]  # fallback
-        rows = table.find_all("tr")[1:]  # skip header
-        symbols = []
-        for tr in rows:
-            tds = tr.find_all("td")
-            if tds:
-                symbols.append(tds[0].get_text(strip=True))
-        return symbols or ["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA"]
-    except Exception:
-        return ["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA"]
-
-symbols = fetch_sp500_symbols()
+symbols_df = pd.read_excel(io=r"Sp500Symbols.xlsx",
+                        sheet_name='Table 1',engine='openpyxl')
+symbols = symbols_df['Symbol'].to_list()
 
 # %% [markdown]
 # - Creating the list for date filters to be used in the line charts
@@ -478,6 +456,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
