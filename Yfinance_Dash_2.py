@@ -383,18 +383,29 @@ def trend_chart(ticker: str, period: str, intervals: str):
     trend_fig.update_layout(title="Daily Closing Price Trend", xaxis_title="Date", yaxis_title="Price")
 
     # Earnings calendar / forecast table (guard empty)
-    cal = getattr(company, "calendar", None)
-    if isinstance(cal, pd.DataFrame) and not cal.empty:
-        forecast_ticker = cal.T.reset_index().rename(columns={"index": "Forecast Type", 0: "Projected Forecast"})
-    else:
-        forecast_ticker = pd.DataFrame(columns=["Forecast Type", "Projected Forecast"])
+    stock = yf.Ticker(ticker)
+    forecast_ticker = pd.DataFrame(stock.calendar).T
+    forecast_ticker.rename(columns={0:'Projected Forecast'}, inplace=True)
+    forecast_ticker.reset_index(inplace=True)
+    forecast_ticker.rename(columns={'index':'Forecast Type'}, inplace=True)
 
     forecast_table = dash_table.DataTable(
-        columns=[{"name": col, "id": col} for col in forecast_ticker.columns],
-        data=forecast_ticker.to_dict("records"),
-        style_table={"overflowY": "auto", "minHeight": "100%"},
-        style_cell={"textAlign": "left", "whiteSpace": "normal", "height": "auto", "width": "auto", "padding": "2px"},
-        style_header={"backgroundColor": "black", "color": "white", "fontWeight": "bold", "textAlign": "center"},
+        columns=[{'name': col, 'id': col} for col in forecast_ticker.columns],
+        data=forecast_ticker.to_dict('records'),
+        style_table={'overflowY': 'auto','minHeight':'100%'},
+        style_cell={
+            'textAlign': 'left',
+            'whiteSpace': 'normal',
+            'height': 'auto',
+            'width': 'auto',
+            'padding': '2px'
+        },
+        style_header={
+            'backgroundColor': 'black',
+            'color': 'white',
+            'fontWeight': 'bold',
+            'textAlign': 'center'
+        }
     )
 
     return trend_fig, rsi_fig, forecast_table, eps_fig, macd_fig
@@ -441,6 +452,7 @@ def dist_table(ticker: str):
 
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
