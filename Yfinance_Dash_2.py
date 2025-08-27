@@ -43,129 +43,129 @@ app.layout = html.Div(
             style={"textAlign": "center", "padding": "20px", "color": "#1a1a1a"},
         ),
 
-        # Dropdown Filters Row
+        # -------------------- Filters --------------------
         html.Div(
             [
                 html.Div(
-                    [
-                        html.Label("Select Stock"),
-                        dcc.Dropdown(symbols, "AAPL", id="stock_symbols", clearable=False),
-                    ],
-                    style={"flex": 1, "marginRight": "10px"},
+                    [html.Label("Select Stock"), dcc.Dropdown(symbols, "AAPL", id="stock_symbols", clearable=False)],
+                    style={"minWidth": 0},
                 ),
                 html.Div(
-                    [
-                        html.Label("Select Period"),
-                        dcc.Dropdown(period, "5y", id="period", clearable=False),
-                    ],
-                    style={"flex": 1, "marginRight": "10px"},
+                    [html.Label("Select Period"), dcc.Dropdown(period, "5y", id="period", clearable=False)],
+                    style={"minWidth": 0},
                 ),
                 html.Div(
-                    [
-                        html.Label("Select Interval"),
-                        dcc.Dropdown(intervals, "1d", id="intervals", clearable=False),
-                    ],
-                    style={"flex": 1},
+                    [html.Label("Select Interval"), dcc.Dropdown(intervals, "1d", id="intervals", clearable=False)],
+                    style={"minWidth": 0},
                 ),
             ],
             style={
-                "display": "flex",
-                "flexDirection": "row",
-                "justifyContent": "space-between",
+                "display": "grid",
+                "gridTemplateColumns": "1fr 1fr 1fr",
+                "gap": "12px",
                 "padding": "0 20px 20px 20px",
+                "alignItems": "center",
             },
         ),
 
         html.Hr(),
 
-        # Main Graph Container: left (trend) | right (RSI stacked atop MACD)
+        # -------------------- Top: Trend | RSI+MACD --------------------
         html.Div(
             [
-                # Price Trend Line - Left half
+                # Left: Price Trend
                 html.Div(
                     [
-                        html.H3("📈 Stock Price Trend", style={"textAlign": "left"}),
-                        dcc.Graph(id="trend_line"),
+                        html.H3("📈 Stock Price Trend", style={"margin": "0 0 8px 0"}),
+                        dcc.Graph(id="trend_line", style={"height": "520px"}),
                     ],
-                    style={"flex": "1 1 0%"},
+                    style={"minWidth": 0},
                 ),
 
-                # RSI and MACD - Right half (stacked vertically)
+                # Right: RSI | MACD (side-by-side)
                 html.Div(
                     [
                         html.Div(
                             [
-                                html.H3("📈 Relative Strength Index (RSI)", style={"textAlign": "left"}),
-                                dcc.Graph(id="RSI", style={"height":"400px"}),
+                                html.H3("📈 Relative Strength Index (RSI)", style={"margin": "0 0 8px 0"}),
+                                dcc.Graph(id="RSI", style={"height": "400px"}),
                             ],
-                            style={"flex":"1", "minWidth":"0"},
+                            style={"minWidth": 0},
                         ),
                         html.Div(
                             [
-                                html.H3("📈 MACD Signal Line", style={"textAlign": "left"}),
-                                dcc.Graph(id="MACD",style={"height":"400px"}),
+                                html.H3("📈 MACD Signal Line", style={"margin": "0 0 8px 0"}),
+                                dcc.Graph(id="MACD", style={"height": "400px"}),
                             ],
-                            style={"flex":"1","minWidth":"0"},
+                            style={"minWidth": 0},
                         ),
                     ],
                     style={
-                        "display": "flex",
-                        "flexDirection": "row",
-                        "gap":"20px",
-                        "alignItems": "stretch",
+                        "display": "grid",
+                        "gridTemplateColumns": "1fr 1fr",
+                        "gap": "20px",
+                        "minWidth": 0,
+                        "alignItems": "start",
                     },
                 ),
             ],
             style={
-                "display": "flex",
-                "flexDirection": "column",
-                "padding": "20px",
+                "display": "grid",
+                "gridTemplateColumns": "1fr 1fr",
                 "gap": "20px",
+                "padding": "20px",
+                "alignItems": "start",
             },
         ),
 
-        # News Table
+        # -------------------- News --------------------
         html.Div(
             [
-                html.Div(
-                    [html.H3("📰 Latest News", style={"textAlign": "left"}), html.Div(id="news_table")],
-                    style={"flex": 1},
-                )
+                html.H3("📰 Latest News", style={"margin": "0 0 8px 0"}),
+                html.Div(id="news_table"),
             ],
-            style={"display": "flex", "flexDirection": "row", "padding": "20px"},
+            style={"padding": "20px"},
         ),
 
         html.Hr(),
 
-        # Distribution / Forecast / Financials
+        # ------------- Bottom: Distribution+Forecast | Financials+EPS -------------
         html.Div(
             [
+                # Left column
                 html.Div(
                     [
-                        html.H3("📈 Price & Volume Distribution"),
-                        html.Div(id="price_dis_table",style={"height":"400px"}),
-                        html.H3("🔮 Earnings Forecast"),
-                        html.Div(id="forecast",style={"height":"400px"}),
+                        html.H3("📈 Price & Volume Distribution", style={"margin": "0 0 8px 0"}),
+                        html.Div(id="price_dis_table", style={"minHeight": "0"}),
+                        html.H3("🔮 Earnings Forecast", style={"margin": "20px 0 8px 0"}),
+                        html.Div(id="forecast", style={"minHeight": "0"}),
                     ],
-                    style={"flex": 1, "display": "flex", "flexDirection": "column", "marginRight": "20px"},
+                    style={"display": "flex", "flexDirection": "column", "gap": "12px", "minWidth": 0},
                 ),
+
+                # Right column
                 html.Div(
                     [
-                        html.H3("📊 Historical Financials"),
-                        html.Div(id="historical_financials",style={"height":"400px"}),
-                        html.H3(children="📊 Quarterly Earnings Per Share", style={"marginTop": "20px"}),
-                        dcc.Graph(id="EPS", style={"marginTop": "20px","height":"400px"}),
+                        html.H3("📊 Historical Financials", style={"margin": "0 0 8px 0"}),
+                        html.Div(id="historical_financials", style={"minHeight": "0"}),
+                        html.H3("📊 Quarterly Earnings Per Share", style={"margin": "20px 0 8px 0"}),
+                        dcc.Graph(id="EPS", style={"height": "400px"}),
                     ],
-                    style={"flex": 1, "display": "flex", "flexDirection": "column", "marginRight": "20px"},
+                    style={"display": "flex", "flexDirection": "column", "gap": "12px", "minWidth": 0},
                 ),
             ],
-            style={"display": "flex", "flexDirection": "row", "padding": "20px"},
+            style={
+                "display": "grid",
+                "gridTemplateColumns": "1fr 1fr",
+                "gap": "20px",
+                "padding": "20px",
+                "alignItems": "start",   # important: prevents tall child from stretching the row
+            },
         ),
     ],
     style={"backgroundColor": "#f5f5f5", "fontFamily": "Arial, sans-serif", "paddingBottom": "40px"},
 )
 
-# -------- News + Historical financials callback --------
 @callback(
     Output("news_table", "children"),
     Output("historical_financials", "children"),
@@ -457,6 +457,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
