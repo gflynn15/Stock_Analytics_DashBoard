@@ -415,7 +415,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
     Output("price_dis_table", "children"),
     Input("stock_symbols", "value"),
 )
-def dist_table(ticker: str):
+def dist_table(ticker):
     df = yf.download(tickers=ticker, period='5y')
     
     cols_new = []
@@ -476,6 +476,7 @@ def dist_table(ticker: str):
 
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
