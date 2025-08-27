@@ -136,22 +136,22 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.H3("📈 Price & Volume Distribution", style={"margin": "0 0 8px 0"}),
-                        html.Div(id="price_dis_table", style={"minHeight": "0"}),
+                        html.Div(id="price_dis_table", style={"minHeight": "0","height":"400px"}),
                         html.H3("🔮 Earnings Forecast", style={"margin": "20px 0 8px 0"}),
-                        html.Div(id="forecast", style={"minHeight": "0"}),
+                        html.Div(id="forecast", style={"minHeight": "0","height":"400px"}),
                     ],
-                    style={"display": "flex", "flexDirection": "column", "gap": "12px", "minWidth": 0},
+                    style={"display": "flex", "flexDirection": "column", "gap": "12px", "minWidth": 0,"height":"400px"},
                 ),
 
                 # Right column
                 html.Div(
                     [
                         html.H3("📊 Historical Financials", style={"margin": "0 0 8px 0"}),
-                        html.Div(id="historical_financials", style={"minHeight": "0"}),
+                        html.Div(id="historical_financials", style={"minHeight": "0","height":"400px"}),
                         html.H3("📊 Quarterly Earnings Per Share", style={"margin": "20px 0 8px 0"}),
                         dcc.Graph(id="EPS", style={"height": "400px"}),
                     ],
-                    style={"display": "flex", "flexDirection": "column", "gap": "12px", "minWidth": 0},
+                    style={"display": "flex", "flexDirection": "column", "gap": "12px", "minWidth": 0,"height":"400px"},
                 ),
             ],
             style={
@@ -159,7 +159,8 @@ app.layout = html.Div(
                 "gridTemplateColumns": "1fr 1fr",
                 "gap": "20px",
                 "padding": "20px",
-                "alignItems": "start",   # important: prevents tall child from stretching the row
+                "height":"400px",
+                "alignItems": "start",# important: prevents tall child from stretching the row
             },
         ),
     ],
@@ -457,6 +458,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
