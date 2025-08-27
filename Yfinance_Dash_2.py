@@ -12,6 +12,7 @@ import plotly.express as px
 import pandas as pd
 import yfinance as yf
 import plotly.graph_objects as go
+import openpyxl
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -456,6 +457,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
