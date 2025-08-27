@@ -349,7 +349,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
     trend_fig.add_trace(go.Scatter(x=df.index, y=df["Close"], name=f"{ticker} Close"))
     trend_fig.add_trace(go.Scatter(x=df.index, y=df["50_DAY_MA"], name="50-Day MA"))
     trend_fig.add_trace(go.Scatter(x=df.index, y=df["200_DAY_MA"], name="200-Day MA"))
-    trend_fig.update_layout(title="text":"<b>Closing Price Trend<b>", xaxis_title="<b>DATE<b>", yaxis_title="<b>PRICE<b>")
+    trend_fig.update_layout(title={"text":"<b>Closing Price Trend<b>"}, xaxis_title="<b>DATE<b>", yaxis_title="<b>PRICE<b>")
 
     # Earnings calendar / forecast table (guard empty)
     stock = yf.Ticker(ticker)
@@ -447,6 +447,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
