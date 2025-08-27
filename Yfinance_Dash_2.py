@@ -143,17 +143,17 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.H3("📈 Price & Volume Distribution"),
-                        html.Div(id="price_dis_table"),
+                        html.Div(id="price_dis_table",style={"height":"400px"),
                         html.H3("🔮 Earnings Forecast"),
-                        html.Div(id="forecast"),
+                        html.Div(id="forecast",style="400px"),
                     ],
                     style={"flex": 1, "display": "flex", "flexDirection": "column", "marginRight": "20px"},
                 ),
                 html.Div(
                     [
                         html.H3("📊 Historical Financials"),
-                        html.Div(id="historical_financials"),
-                        html.H3(children="📊 Quarterly Earnings Per Share", style={"marginTop": "20px","height":"400px"}),
+                        html.Div(id="historical_financials",style={"height":"400px"}),
+                        html.H3(children="📊 Quarterly Earnings Per Share", style={"marginTop": "20px"}),
                         dcc.Graph(id="EPS", style={"marginTop": "20px","height":"400px"}),
                     ],
                     style={"flex": 1, "display": "flex", "flexDirection": "column", "marginRight": "20px"},
@@ -457,6 +457,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
