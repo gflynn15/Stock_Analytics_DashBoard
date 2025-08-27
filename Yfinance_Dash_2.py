@@ -247,47 +247,48 @@ def create_table(ticker: str):
 
     # Historical financials (guard for empty)
     financials = stock.financials
-    if isinstance(financials, pd.DataFrame) and not financials.empty:
-        df_fin = financials.T.copy()
-        # Index can be DatetimeIndex or PeriodIndex; coerce year safely
-        try:
-            df_fin.index = pd.to_datetime(df_fin.index).year
-        except Exception:
-            pass
-        keep = [c for c in ["Total Revenue", "Gross Profit", "Operating Income", "Net Income", "Normalized Income"] if c in df_fin.columns]
-        df_fin = df_fin[keep].reset_index().rename(columns={"index": "Year"})
-    else:
-        df_fin = pd.DataFrame(columns=["Year", "Total Revenue", "Gross Profit", "Operating Income", "Net Income", "Normalized Income"])
 
+    financials = financials.T
+
+    financials.index = pd.to_datetime(financials.index).year
+
+    key_financials = financials[['Total Revenue', 'Gross Profit', 'Operating Income', 'Net Income','Normalized Income']]
+
+    key_financials.reset_index(inplace=True)
+
+    key_financials.rename(columns={'index':'Year'}, inplace=True)
+    
     financials_table = dash_table.DataTable(
-        columns=[{"name": col, "id": col} for col in df_fin.columns],
-        data=df_fin.to_dict("records"),
+        columns=[{'name':col, 'id':col} for col in key_financials.columns],
+        data=key_financials.to_dict('records'),
         cell_selectable=True,
         style_table={
-            "overflowX": "auto",
-            "overflowY": "auto",
-            "maxHeight": "400px",
-            "border": "2px solid #ccc",
-        },
-        style_cell={
-            "textAlign": "left",
-            "whiteSpace": "normal",
-            "minWidth": "150px",
-            "width": "200px",
-            "maxWidth": "300px",
-            "padding": "6px",
-            "overflowX": "auto",
-            "overflowY": "auto",
-        },
-        style_header={
-            "backgroundColor": "black",
-            "color": "white",
-            "fontWeight": "bold",
-            "textAlign": "left",
-            "overflowX": "auto",
-            "overflowY": "auto",
-        },
-    )
+        'overflowX': 'auto',         # Scroll horizontally if needed
+        'overflowY': 'auto',         # Scroll vertically inside the box
+        'maxHeight': '400px',        # Set max visible height
+        'border': '2px solid #ccc'   # Optional: makes the box look nice
+    },
+    
+    style_cell={
+        'textAlign': 'left',
+        'whiteSpace': 'normal',
+        'minWidth': '150px',
+        'width': '200px',
+        'maxWidth': '300px',
+        'padding': '6px',
+        'overflowX':'auto',
+        'overflowY':'auto',
+    },
+
+    style_header={
+        'backgroundColor': 'black',
+        'color': 'white',
+        'fontWeight': 'bold',
+        'textAlign': 'left',
+        'overflowX':'auto',
+        'overflowY':'auto'
+    }
+)
 
     return articles, financials_table
 
@@ -440,6 +441,7 @@ def dist_table(ticker: str):
 
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
