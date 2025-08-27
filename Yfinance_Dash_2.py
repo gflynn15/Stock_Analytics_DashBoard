@@ -43,66 +43,82 @@ app.layout = html.Div(
             style={"textAlign": "center", "padding": "20px", "color": "#1a1a1a"},
         ),
 
-        # -------------------- Filters --------------------
+        # ------------ Filters (responsive grid) ------------
         html.Div(
             [
                 html.Div(
                     [html.Label("Select Stock"), dcc.Dropdown(symbols, "AAPL", id="stock_symbols", clearable=False)],
-                    style={"minWidth": 0},
                 ),
                 html.Div(
                     [html.Label("Select Period"), dcc.Dropdown(period, "5y", id="period", clearable=False)],
-                    style={"minWidth": 0},
                 ),
                 html.Div(
                     [html.Label("Select Interval"), dcc.Dropdown(intervals, "1d", id="intervals", clearable=False)],
-                    style={"minWidth": 0},
                 ),
             ],
             style={
                 "display": "grid",
-                "gridTemplateColumns": "1fr 1fr 1fr",
+                # Responsive: auto-fit as many as possible, min 220px width each
+                "gridTemplateColumns": "repeat(auto-fit, minmax(220px, 1fr))",
                 "gap": "12px",
                 "padding": "0 20px 20px 20px",
                 "alignItems": "center",
             },
         ),
 
-        html.Hr(),
+        html.Hr(style={"margin": "0 20px"}),
 
-        # -------------------- Top: Trend | RSI+MACD --------------------
+        # ------------ Top: Price Trend | RSI + MACD ------------
         html.Div(
             [
-                # Left: Price Trend
+                # Left: Price Trend (takes more width)
                 html.Div(
                     [
                         html.H3("📈 Stock Price Trend", style={"margin": "0 0 8px 0"}),
                         dcc.Graph(id="trend_line", style={"height": "520px"}),
                     ],
-                    style={"minWidth": 0},
+                    style={
+                        "minWidth": 0,
+                        "background": "white",
+                        "borderRadius": "12px",
+                        "padding": "16px",
+                        "boxShadow": "0 1px 4px rgba(0,0,0,0.08)",
+                    },
                 ),
 
-                # Right: RSI | MACD (side-by-side)
+                # Right: RSI and MACD stacked with consistent spacing
                 html.Div(
                     [
                         html.Div(
                             [
                                 html.H3("📈 Relative Strength Index (RSI)", style={"margin": "0 0 8px 0"}),
-                                dcc.Graph(id="RSI", style={"height": "400px"}),
+                                dcc.Graph(id="RSI", style={"height": "300px"}),
                             ],
-                            style={"minWidth": 0},
+                            style={
+                                "minWidth": 0,
+                                "background": "white",
+                                "borderRadius": "12px",
+                                "padding": "16px",
+                                "boxShadow": "0 1px 4px rgba(0,0,0,0.08)",
+                            },
                         ),
                         html.Div(
                             [
                                 html.H3("📈 MACD Signal Line", style={"margin": "0 0 8px 0"}),
-                                dcc.Graph(id="MACD", style={"height": "400px"}),
+                                dcc.Graph(id="MACD", style={"height": "300px"}),
                             ],
-                            style={"minWidth": 0},
+                            style={
+                                "minWidth": 0,
+                                "background": "white",
+                                "borderRadius": "12px",
+                                "padding": "16px",
+                                "boxShadow": "0 1px 4px rgba(0,0,0,0.08)",
+                            },
                         ),
                     ],
                     style={
                         "display": "grid",
-                        "gridTemplateColumns": "1fr 1fr",
+                        "gridTemplateRows": "auto auto",
                         "gap": "20px",
                         "minWidth": 0,
                         "alignItems": "start",
@@ -111,47 +127,84 @@ app.layout = html.Div(
             ],
             style={
                 "display": "grid",
-                "gridTemplateRows": "1fr 1fr",
+                # Two columns: trend gets 2x space, indicators 1x
+                "gridTemplateColumns": "2fr 1fr",
                 "gap": "20px",
                 "padding": "20px",
                 "alignItems": "start",
+                "maxWidth": "1400px",
+                "margin": "0 auto",
             },
         ),
 
-        # -------------------- News --------------------
+        # ------------ News ------------
         html.Div(
             [
                 html.H3("📰 Latest News", style={"margin": "0 0 8px 0"}),
                 html.Div(id="news_table"),
             ],
-            style={"padding": "20px"},
+            style={
+                "padding": "20px",
+                "maxWidth": "1400px",
+                "margin": "0 auto",
+                "background": "white",
+                "borderRadius": "12px",
+                "boxShadow": "0 1px 4px rgba(0,0,0,0.08)",
+            },
         ),
 
-        html.Hr(),
+        html.Hr style={"margin": "20px 20px"} ,
 
-        # ------------- Bottom: Distribution+Forecast | Financials+EPS -------------
+        # ------------ Bottom: Distribution+Forecast | Financials+EPS ------------
         html.Div(
             [
                 # Left column
                 html.Div(
                     [
                         html.H3("📈 Price & Volume Distribution", style={"margin": "0 0 8px 0"}),
-                        html.Div(id="price_dis_table", style={"minHeight": "0","height":"400px"}),
+                        html.Div(
+                            id="price_dis_table",
+                            style={"minHeight": "0", "maxHeight": "400px", "overflowY": "auto"},
+                        ),
                         html.H3("🔮 Earnings Forecast", style={"margin": "20px 0 8px 0"}),
-                        html.Div(id="forecast", style={"minHeight": "0","height":"400px"}),
+                        html.Div(
+                            id="forecast",
+                            style={"minHeight": "0", "maxHeight": "400px", "overflowY": "auto"},
+                        ),
                     ],
-                    style={"display": "flex", "flexDirection": "column", "gap": "20px", "minWidth": 0,"height":"400px"},
+                    style={
+                        "display": "flex",
+                        "flexDirection": "column",
+                        "gap": "20px",
+                        "minWidth": 0,
+                        "background": "white",
+                        "borderRadius": "12px",
+                        "padding": "16px",
+                        "boxShadow": "0 1px 4px rgba(0,0,0,0.08)",
+                    },
                 ),
 
                 # Right column
                 html.Div(
                     [
                         html.H3("📊 Historical Financials", style={"margin": "0 0 8px 0"}),
-                        html.Div(id="historical_financials", style={"minHeight": "0","height":"400px"}),
+                        html.Div(
+                            id="historical_financials",
+                            style={"minHeight": "0", "maxHeight": "400px", "overflowY": "auto"},
+                        ),
                         html.H3("📊 Quarterly Earnings Per Share", style={"margin": "20px 0 8px 0"}),
-                        dcc.Graph(id="EPS", style={"height": "600px"}),
+                        dcc.Graph(id="EPS", style={"height": "520px"}),
                     ],
-                    style={"display": "flex", "flexDirection": "column", "gap": "20px", "minWidth": 0,"height":"100%"},
+                    style={
+                        "display": "flex",
+                        "flexDirection": "column",
+                        "gap": "20px",
+                        "minWidth": 0,
+                        "background": "white",
+                        "borderRadius": "12px",
+                        "padding": "16px",
+                        "boxShadow": "0 1px 4px rgba(0,0,0,0.08)",
+                    },
                 ),
             ],
             style={
@@ -159,11 +212,17 @@ app.layout = html.Div(
                 "gridTemplateColumns": "1fr 1fr",
                 "gap": "20px",
                 "padding": "20px",
-                "alignItems": "start",# important: prevents tall child from stretching the row
+                "alignItems": "start",
+                "maxWidth": "1400px",
+                "margin": "0 auto",
             },
         ),
     ],
-    style={"backgroundColor": "#f5f5f5", "fontFamily": "Arial, sans-serif", "paddingBottom": "40px"},
+    style={
+        "backgroundColor": "#f5f5f5",
+        "fontFamily": "Arial, sans-serif",
+        "paddingBottom": "40px",
+    },
 )
 
 @callback(
@@ -457,6 +516,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
