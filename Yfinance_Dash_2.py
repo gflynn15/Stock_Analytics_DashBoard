@@ -78,18 +78,19 @@ app.layout = html.Div([
             html.Div([
                 html.H3("📈 Relative Strength Index (RSI)", style={'textAlign': 'left'}),
                 dcc.Graph(id='RSI')
-            ], style={'flex': '1 1 0%'}), # Use flex on the child to ensure it takes available space
+            ], style={'flex': '1 1 0%',"height":"400px"}), # Use flex on the child to ensure it takes available space
 
             # MACD Graph
             html.Div([
                 html.H3("📈 MACD Signal Line", style={'textAlign': 'left'}),
                 dcc.Graph(id='MACD')
-            ], style={'flex': '1 1 0%'}) # Use flex on the child to ensure it takes available space
+            ], style={'flex': '1 1 0%',"height":"400px"}) # Use flex on the child to ensure it takes available space
         ],
         style={
             'display': 'flex',
             'flexDirection': 'row', # Stacks RSI and MACD vertically
-            'flex': '1 1 0%',         # Allows this container to take up half the width
+            'flex': '1 1 0%', # Allows this container to take up half the width
+            "height":"400px", 
             'gap': '20px',            # Adds a consistent gap between the RSI and MACD graphs
         }),
 
@@ -438,6 +439,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
