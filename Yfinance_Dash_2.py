@@ -15,8 +15,6 @@ import plotly.graph_objects as go
 import openpyxl
 import warnings
 
-warnings.filterwarnings("ignore")
-
 symbols_df = pd.read_excel(io=r"Sp500Symbols.xlsx",
                         sheet_name='Table 1',engine='openpyxl')
 symbols = symbols_df['Symbol'].to_list()
@@ -447,6 +445,7 @@ def dist_table(ticker):
     )
 if __name__ == "__main__":
     app.run_server(debug=False)
+
 
 
 
