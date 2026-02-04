@@ -179,7 +179,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
         company = yf.Ticker(ticker)
     # News (robust parsing)
     with thread_lock:
-        news = company.get_news(count=10, tab="news", proxy=None)
+        news = company.get_news(count=10, tab="news")
     articles = []
     for arts in range(len(news)):
         keys = ["title","summary","pubDate","clickThroughUrl"]
@@ -192,6 +192,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
     articles_df["CLICKTHROUGHURL"] = articles_df["CLICKTHROUGHURL"].apply(
         lambda x: f"[VIEW ARTICLE]({x})" if x else "Sorry we could not find your link. Visit Yahoo finance to find the article"
         )
+    
     articles = dash_table.DataTable(
         columns=[
         {"name": "PUBDATE", "id": "PUBDATE"},
