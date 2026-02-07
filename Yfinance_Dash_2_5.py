@@ -5,6 +5,7 @@ from dash_bootstrap_templates import load_figure_template
 from cache_config import cache
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SIMPLEX], use_pages=True, pages_folder="pages")
+server=app.server
 load_figure_template('simplex')
 
 # hand-shake for the cache
