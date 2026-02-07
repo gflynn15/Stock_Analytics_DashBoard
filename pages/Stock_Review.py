@@ -35,8 +35,9 @@ import threading
 # %%
 dash.register_page(__name__, name="Stock_Review", path="/Stock_Review", order=2)
 load_figure_template('simplex')
-##Importing Stok Symbols
-sp500_df = pd.read_csv(r"C:\Users\Gabriel Flynn\OneDrive\OneDrive - University of Texas at El Paso\Documents\Python Projects\Yfinance_Stock_Data_Analysis\yfin_dash_app_api_backend\stock_symbols_list.csv")
+
+##Reading stock symbols folder
+sp500_df = pd.read_csv(r'stock_symbols_list.csv')
 symbols = (sp500_df['Symbol'] + "-" + sp500_df['Security']).tolist()
 symbols = sorted(symbols)
 
