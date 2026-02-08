@@ -1,3 +1,14 @@
+Here is the fully corrected **`Market_Review.py`**.
+
+I have:
+
+1. **Removed** `persistence=True` and `persistence_type='memory'` from all graphs (fixing the `TypeError`).
+2. **Kept** the `make_safe_plot` fix (fixing the `ValueError` crash on the Agriculture/Metals charts).
+3. **Kept** the caching and safe news loading.
+
+Replace your entire `pages/Market_Review.py` file with this:
+
+```python
 import numpy as np
 import dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
@@ -61,6 +72,42 @@ def get_market_news():
         return []
 
 # ==========================================
+# HELPER: Safe Plotting (Fixes ValueError)
+# ==========================================
+def make_safe_plot(df, ticker, name):
+    """
+    Extracts ONLY the relevant columns for this specific ticker,
+    drops NaNs for just this ticker, and then plots.
+    Prevents one bad ticker from breaking the others.
+    """
+    # Identify relevant columns (Ticker + its MAs)
+    relevant_cols = [ticker]
+    for ma in ["30_MA", "50_MA", "200_MA"]:
+        col_name = f"{ticker}_{ma}"
+        if col_name in df.columns:
+            relevant_cols.append(col_name)
+    
+    # Filter the dataframe safely
+    # 1. Select only columns that exist
+    valid_cols = [c for c in relevant_cols if c in df.columns]
+    
+    if not valid_cols:
+        return go.Figure()
+
+    # 2. Create a subset copy
+    df_subset = df[valid_cols].copy()
+    
+    # 3. Drop NaNs ONLY based on the Price column (to keep MAs even if partial)
+    #    or dropna() on the whole subset.
+    df_clean = df_subset.dropna() 
+
+    if df_clean.empty:
+        return go.Figure()
+
+    return make_plot(df_clean, ticker, name)
+
+
+# ==========================================
 # LAYOUT
 # ==========================================
 layout = dbc.Container([
@@ -95,7 +142,7 @@ layout = dbc.Container([
         dbc.Col(dcc.Loading(dcc.Graph(id="nasdaq", style={'minHeight': '400px', 'height': '60vh'})), xs=12, lg=4)
     ], className="mb-5 g-3"),
     
-    ## Market news table (Now loaded via callback to prevent crash)
+    ## Market news table
     dbc.Row([
         dbc.Col(html.H1("RECENT NEWS", style={"textAlign":"center","fontWeight":"bold"}), width=12)
     ]),
@@ -296,15 +343,11 @@ def index_trend_chart(period, interval):
 
     # Handle MultiIndex if present
     if isinstance(index_data.columns, pd.MultiIndex):
-        # If 'Close' is level 0, we select it. 
-        # Note: Depending on yf version, it might come as [Price, Ticker] or [Ticker, Price]
         try:
             Closing_prices = index_data['Close'].copy()
         except KeyError:
-            # Fallback if 'Close' isn't top level
             Closing_prices = index_data.copy() 
     else:
-        # If accessing index_data['Close'] failed previously or structure is flat
         if 'Close' in index_data:
             Closing_prices = index_data['Close'].copy()
         else:
@@ -326,11 +369,10 @@ def index_trend_chart(period, interval):
             Closing_prices[f"{col}_50_MA"] = Closing_prices[col].rolling(window=50).mean()
             Closing_prices[f"{col}_200_MA"] = Closing_prices[col].rolling(window=200).mean()
 
-    closing_prices_nona = Closing_prices[pd.notna(Closing_prices)]
-    
-    sp500_fig = make_plot(closing_prices_nona,"^GSPC", "S&P 500 Price Trend")
-    dowjones_fig = make_plot(closing_prices_nona,"^DJI", "Dow Jones Industrial Average Price Trend")
-    nasdaq_fig = make_plot(closing_prices_nona,"^IXIC", "Nasdaq Composite Price Trend")
+    # Safe Plot Logic
+    sp500_fig = make_safe_plot(Closing_prices, "^GSPC", "S&P 500 Price Trend")
+    dowjones_fig = make_safe_plot(Closing_prices, "^DJI", "Dow Jones Industrial Average Price Trend")
+    nasdaq_fig = make_safe_plot(Closing_prices, "^IXIC", "Nasdaq Composite Price Trend")
     
     return sp500_card, dow_card, nas_card, sp500_fig, dowjones_fig, nasdaq_fig
 
@@ -357,7 +399,6 @@ def metals_trend_charts(period, interval, metal_1, metal_2, metal_3):
     if metals_data.empty:
         return [html.Div("No Data")]*3 + [go.Figure()]*3
 
-    # Extract Close
     if 'Close' in metals_data.columns or (isinstance(metals_data.columns, pd.MultiIndex) and 'Close' in metals_data.columns.get_level_values(0)):
         try:
              metals_closing = metals_data["Close"].copy()
@@ -366,7 +407,6 @@ def metals_trend_charts(period, interval, metal_1, metal_2, metal_3):
     else:
         metals_closing = metals_data.copy()
 
-    # Price Cards
     metal_cards = {}
     for x in tickers:
         if x in metals_closing.columns:
@@ -375,18 +415,16 @@ def metals_trend_charts(period, interval, metal_1, metal_2, metal_3):
         else:
             metal_cards[x] = html.Div("N/A")
 
-    # Moving Averages
     for col in tickers:
         if col in metals_closing.columns:
             metals_closing[f"{col}_30_MA"] = metals_closing[col].rolling(window=30).mean()
             metals_closing[f"{col}_50_MA"] = metals_closing[col].rolling(window=50).mean()
             metals_closing[f"{col}_200_MA"] = metals_closing[col].rolling(window=200).mean()
     
-    metals_closing_nona = metals_closing.dropna()
-    
-    fig1 = make_plot(metals_closing_nona, metal_1, f"{commodity_names_m.get(metal_1, metal_1)} Price Trend")
-    fig2 = make_plot(metals_closing_nona, metal_2, f"{commodity_names_m.get(metal_2, metal_2)} Price Trend")
-    fig3 = make_plot(metals_closing_nona, metal_3, f"{commodity_names_m.get(metal_3, metal_3)} Price Trend")
+    # FIXED: Use make_safe_plot instead of bulk dropna()
+    fig1 = make_safe_plot(metals_closing, metal_1, f"{commodity_names_m.get(metal_1, metal_1)} Price Trend")
+    fig2 = make_safe_plot(metals_closing, metal_2, f"{commodity_names_m.get(metal_2, metal_2)} Price Trend")
+    fig3 = make_safe_plot(metals_closing, metal_3, f"{commodity_names_m.get(metal_3, metal_3)} Price Trend")
     
     return metal_cards[metal_1], metal_cards[metal_2], metal_cards[metal_3], fig1, fig2, fig3
 
@@ -432,11 +470,10 @@ def energy_trend_charts(period, interval, energy_1, energy_2, energy_3):
             energy_closing[f"{col}_50_MA"] = energy_closing[col].rolling(window=50).mean()
             energy_closing[f"{col}_200_MA"] = energy_closing[col].rolling(window=200).mean()
             
-    energy_closing_nona = energy_closing.dropna()
-    
-    fig1 = make_plot(energy_closing_nona, energy_1, f"{commodity_names_e.get(energy_1, energy_1)} Price Trend")
-    fig2 = make_plot(energy_closing_nona, energy_2, f"{commodity_names_e.get(energy_2, energy_2)} Price Trend")
-    fig3 = make_plot(energy_closing_nona, energy_3, f"{commodity_names_e.get(energy_3, energy_3)} Price Trend")
+    # FIXED: Use make_safe_plot
+    fig1 = make_safe_plot(energy_closing, energy_1, f"{commodity_names_e.get(energy_1, energy_1)} Price Trend")
+    fig2 = make_safe_plot(energy_closing, energy_2, f"{commodity_names_e.get(energy_2, energy_2)} Price Trend")
+    fig3 = make_safe_plot(energy_closing, energy_3, f"{commodity_names_e.get(energy_3, energy_3)} Price Trend")
     
     return energy_cards[energy_1], energy_cards[energy_2], energy_cards[energy_3], fig1, fig2, fig3
 
@@ -482,11 +519,9 @@ def ag_trend_charts(period, interval, ag_1, ag_2, ag_3):
             ag_closing[f"{col}_50_MA"] = ag_closing[col].rolling(window=50).mean()
             ag_closing[f"{col}_200_MA"] = ag_closing[col].rolling(window=200).mean()
             
-    ag_closing_nona = ag_closing.dropna()
-    
-    fig1 = make_plot(ag_closing_nona, ag_1, f"{commodity_names_ag.get(ag_1, ag_1)} Price Trend")
-    fig2 = make_plot(ag_closing_nona, ag_2, f"{commodity_names_ag.get(ag_2, ag_2)} Price Trend")
-    fig3 = make_plot(ag_closing_nona, ag_3, f"{commodity_names_ag.get(ag_3, ag_3)} Price Trend")
+    # FIXED: Use make_safe_plot
+    fig1 = make_safe_plot(ag_closing, ag_1, f"{commodity_names_ag.get(ag_1, ag_1)} Price Trend")
+    fig2 = make_safe_plot(ag_closing, ag_2, f"{commodity_names_ag.get(ag_2, ag_2)} Price Trend")
+    fig3 = make_safe_plot(ag_closing, ag_3, f"{commodity_names_ag.get(ag_3, ag_3)} Price Trend")
     
     return ag_cards[ag_1], ag_cards[ag_2], ag_cards[ag_3], fig1, fig2, fig3
-
