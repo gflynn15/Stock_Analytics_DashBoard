@@ -79,8 +79,7 @@ layout = dbc.Container([
                         id='RSI', 
                         config={'responsive': True},
                         style={'height': '40vh', 'minHeight': '350px'},
-                        persistence=True,
-                        persistence_type='memory'
+                        persistence=True
                     ))
                 ])
             ], xs=12, md=6, lg=6),
@@ -94,8 +93,7 @@ layout = dbc.Container([
                         id='MACD', 
                         config={'responsive': True},
                         style={'height': '40vh', 'minHeight': '350px'},
-                        persistence=True,
-                        persistence_type='memory'
+                        persistence=True
                     ))
                 ])
             ], xs=12, md=6, lg=6)
@@ -136,8 +134,7 @@ layout = dbc.Container([
                         id='EPS', 
                         config={'responsive': True},
                         style={'height': '40vh', 'minHeight': '350px'},
-                        persistence=True,
-                        persistence_type='memory'
+                        persistence=True
                     )
                 ])
             ])
@@ -364,14 +361,16 @@ def trend_chart(ticker: str, period: str, intervals: str):
     macd_fig.add_trace(go.Scatter(x=macd_df.index, y=macd_df["MACD_LINE"], name="MACD"))
     macd_fig.add_trace(go.Scatter(x=macd_df.index, y=macd_df["SIGNAL_LINE"], name="Signal"))
     macd_fig.add_trace(go.Bar(x=macd_df.index, y=macd_df["HISTOGRAM"], name="Histogram"))
-    macd_fig.update_layout(title={"text":"<b>MACD<b>", "x":.5, "y":.95}, yaxis_title="<b>MACD<b>", xaxis_title="<b>DATE<b>")
+    macd_fig.update_layout(title={"text":"<b>MACD<b>", "x":.5, "y":.95}, yaxis_title="<b>MACD<b>", xaxis_title="<b>DATE<b>",
+                           legend=dict(orientation="h",yanchor="bottom",y=-.03,xanchor="center",x=0.5))
 
     # Trend line
     trend_fig = go.Figure()
     trend_fig.add_trace(go.Scatter(x=df.index, y=df["Close"], name=f"{ticker} Close"))
     trend_fig.add_trace(go.Scatter(x=df.index, y=df["50_DAY_MA"], name="50-Day MA"))
     trend_fig.add_trace(go.Scatter(x=df.index, y=df["200_DAY_MA"], name="200-Day MA"))
-    trend_fig.update_layout(title={"text":"<b>Closing Price Trend<b>"}, xaxis_title="<b>DATE<b>", yaxis_title="<b>PRICE<b>")
+    trend_fig.update_layout(title={"text":"<b>Closing Price Trend<b>"}, xaxis_title="<b>DATE<b>", yaxis_title="<b>PRICE<b>",
+                            legend=dict(orientation="h",yanchor="bottom",y=-.03,xanchor="center",x=0.5))
 
     # Distribution Table
     df_close_dist = df['Close'].describe().to_frame(name='Closing Price').round(2)

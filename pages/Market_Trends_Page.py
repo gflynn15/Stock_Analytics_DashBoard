@@ -90,9 +90,9 @@ layout = dbc.Container([
     
     ## Indices Graphs
     dbc.Row([
-        dbc.Col(dcc.Loading(dcc.Graph(id="sp500", style={'minHeight': '400px', 'height': '60vh'}, persistence=True, persistence_type='memory')), xs=12, lg=4),
-        dbc.Col(dcc.Loading(dcc.Graph(id="dowjones", style={'minHeight': '400px', 'height': '60vh'}, persistence=True, persistence_type='memory')), xs=12, lg=4),
-        dbc.Col(dcc.Loading(dcc.Graph(id="nasdaq", style={'minHeight': '400px', 'height': '60vh'}, persistence=True, persistence_type='memory')), xs=12, lg=4)
+        dbc.Col(dcc.Loading(dcc.Graph(id="sp500", style={'minHeight': '400px', 'height': '60vh'}, persistence=True)), xs=12, lg=4),
+        dbc.Col(dcc.Loading(dcc.Graph(id="dowjones", style={'minHeight': '400px', 'height': '60vh'}, persistence=True)), xs=12, lg=4),
+        dbc.Col(dcc.Loading(dcc.Graph(id="nasdaq", style={'minHeight': '400px', 'height': '60vh'}, persistence=True)), xs=12, lg=4)
     ], className="mb-5 g-3"),
     
     ## Market news table (Now loaded via callback to prevent crash)
@@ -137,9 +137,9 @@ layout = dbc.Container([
     ], className="g-3"),
     
     dbc.Row([
-        dbc.Col(dcc.Loading(dcc.Graph(id="metal_1_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True, persistence_type='memory')), xs=12, lg=4),
-        dbc.Col(dcc.Loading(dcc.Graph(id="metal_2_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True, persistence_type='memory')), xs=12, lg=4),
-        dbc.Col(dcc.Loading(dcc.Graph(id="metal_3_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True, persistence_type='memory')), xs=12, lg=4)
+        dbc.Col(dcc.Loading(dcc.Graph(id="metal_1_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True)), xs=12, lg=4),
+        dbc.Col(dcc.Loading(dcc.Graph(id="metal_2_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True)), xs=12, lg=4),
+        dbc.Col(dcc.Loading(dcc.Graph(id="metal_3_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True)), xs=12, lg=4)
     ], className="mb-5 g-3"),
 
     ### ENERGY SECTION
@@ -177,9 +177,9 @@ layout = dbc.Container([
     ], className="g-3"),
     
     dbc.Row([
-        dbc.Col(dcc.Loading(dcc.Graph(id="energy_1_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True, persistence_type='memory')), xs=12, lg=4),
-        dbc.Col(dcc.Loading(dcc.Graph(id="energy_2_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True, persistence_type='memory')), xs=12, lg=4),
-        dbc.Col(dcc.Loading(dcc.Graph(id="energy_3_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True, persistence_type='memory')), xs=12, lg=4)
+        dbc.Col(dcc.Loading(dcc.Graph(id="energy_1_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True)), xs=12, lg=4),
+        dbc.Col(dcc.Loading(dcc.Graph(id="energy_2_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True)), xs=12, lg=4),
+        dbc.Col(dcc.Loading(dcc.Graph(id="energy_3_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True)), xs=12, lg=4)
     ], className="mb-5 g-3"),
 
     ### AGRICULTURE SECTION
@@ -217,9 +217,9 @@ layout = dbc.Container([
     ], className="g-3"),
     
     dbc.Row([
-        dbc.Col(dcc.Loading(dcc.Graph(id="ag_1_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True, persistence_type='memory')), xs=12, lg=4),
-        dbc.Col(dcc.Loading(dcc.Graph(id="ag_2_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True, persistence_type='memory')), xs=12, lg=4),
-        dbc.Col(dcc.Loading(dcc.Graph(id="ag_3_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True, persistence_type='memory')), xs=12, lg=4)
+        dbc.Col(dcc.Loading(dcc.Graph(id="ag_1_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True)), xs=12, lg=4),
+        dbc.Col(dcc.Loading(dcc.Graph(id="ag_2_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True)), xs=12, lg=4),
+        dbc.Col(dcc.Loading(dcc.Graph(id="ag_3_graph", style={'minHeight': '400px', 'height': '60vh'}, persistence=True)), xs=12, lg=4)
     ], className="mb-5 g-3")
 ], fluid=True)
 
