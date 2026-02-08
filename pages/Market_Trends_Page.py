@@ -154,7 +154,7 @@ layout = dbc.Container([
     ], className="mb-3 g-3"),
     dbc.Row([
         dbc.Col([html.Label(html.B("Select Agriculture Commodity")), dcc.Dropdown(ag, "ZC=F", id="ag_1", clearable=False), dcc.Loading(html.Div(id="ag_1_price"), type="circle")], xs=12, md=4),
-        dbc.Col([html.Label(html.B("Select Agriculture Commodity")), dcc.Dropdown(ag, "ZW=F", id="ag_2", clearable=False), dcc.Loading(html.Div(id="ag_2_price"), type="circle")], xs=12, md=4),
+        dbc.Col([html.Label(html.B("Select Agriculture Commodity")), dcc.Dropdown(ag, "SB=F", id="ag_2", clearable=False), dcc.Loading(html.Div(id="ag_2_price"), type="circle")], xs=12, md=4),
         dbc.Col([html.Label(html.B("Select Agriculture Commodity")), dcc.Dropdown(ag, "LE=F", id="ag_3", clearable=False), dcc.Loading(html.Div(id="ag_3_price"), type="circle")], xs=12, md=4)
     ], className="g-3"),
     dbc.Row([

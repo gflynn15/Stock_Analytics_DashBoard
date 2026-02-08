@@ -212,7 +212,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
     if not articles_df.empty:
         articles_df["PUBDATE"] = pd.to_datetime(articles_df["PUBDATE"]).dt.date
         articles_df["CLICKTHROUGHURL"] = articles_df["CLICKTHROUGHURL"].apply(
-            lambda x: f"[VIEW ARTICLE]({x})" if x else "Link unavailable"
+            lambda x: f"[VIEW ARTICLE]({x})" if x else "Link Unavailable"
         )
     else:
         # Fallback if no news
@@ -220,11 +220,11 @@ def trend_chart(ticker: str, period: str, intervals: str):
 
     news_table = dash_table.DataTable(
         columns=[
-            {"name": "PUBDATE", "id": "PUBDATE"},
-            {"name": "TITLE", "id": "TITLE"},
-            {"name": "SUMMARY", "id": "SUMMARY"},
-            {"name": "LINK", "id": "CLICKTHROUGHURL", "presentation": "markdown"}
-        ],
+                {"name": "PUBDATE", "id": "PUBDATE"},
+                {"name": "TITLE", "id": "TITLE"},
+                {"name": "SUMMARY", "id": "SUMMARY"},
+                {"name": "LINK", "id": "CLICKTHROUGHURL", "presentation": "markdown"}
+            ],
         data=articles_df.to_dict("records"),
         cell_selectable=True,
         page_size=5,
