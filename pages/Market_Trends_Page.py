@@ -57,13 +57,11 @@ def get_market_data(tickers, period, interval):
     if isinstance(df.columns, pd.MultiIndex):
         try:
             # We prefer 'Close' price. 
-            # This creates a DataFrame where columns are just the Tickers.
             if 'Close' in df.columns.get_level_values(0):
                 df = df.xs('Close', axis=1, level=0)
             elif 'Adj Close' in df.columns.get_level_values(0):
                 df = df.xs('Adj Close', axis=1, level=0)
         except Exception:
-            # Fallback: If structure is unexpected, keep as is
             pass
             
     return df.to_json(date_format='iso')
@@ -80,19 +78,12 @@ def get_market_news():
 # HELPER: Safe Plotting
 # ==========================================
 def make_safe_plot(df, ticker, name):
-    """
-    Extracts ONLY the relevant columns for this specific ticker.
-    Only drops rows where the PRICE is missing.
-    Keeps rows where MA is missing so the graph isn't blank.
-    """
-    # Identify relevant columns (Ticker + its MAs)
     relevant_cols = [ticker]
     for ma in ["30_MA", "50_MA", "200_MA"]:
         col_name = f"{ticker}_{ma}"
         if col_name in df.columns:
             relevant_cols.append(col_name)
     
-    # Filter the dataframe safely
     valid_cols = [c for c in relevant_cols if c in df.columns]
     
     if not valid_cols:
