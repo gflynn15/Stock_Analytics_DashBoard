@@ -1,14 +1,3 @@
-Here is the fully corrected **`Market_Review.py`**.
-
-I have:
-
-1. **Removed** `persistence=True` and `persistence_type='memory'` from all graphs (fixing the `TypeError`).
-2. **Kept** the `make_safe_plot` fix (fixing the `ValueError` crash on the Agriculture/Metals charts).
-3. **Kept** the caching and safe news loading.
-
-Replace your entire `pages/Market_Review.py` file with this:
-
-```python
 import numpy as np
 import dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
