@@ -62,8 +62,7 @@ layout = dbc.Container([
                     id='trend_line', 
                     config={'responsive': True},
                     style={'height': '60vh', 'minHeight': '500px'},
-                    persistence=True,
-                    persistence_type='memory'
+                    persistence=True
             ))
         ]),
         
