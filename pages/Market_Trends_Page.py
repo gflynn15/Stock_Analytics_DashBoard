@@ -61,13 +61,13 @@ def get_market_news():
         return []
 
 # ==========================================
-# HELPER: Safe Plotting (Fixes ValueError)
+# HELPER: Safe Plotting (FIXED)
 # ==========================================
 def make_safe_plot(df, ticker, name):
     """
-    Extracts ONLY the relevant columns for this specific ticker,
-    drops NaNs for just this ticker, and then plots.
-    Prevents one bad ticker from breaking the others.
+    Extracts ONLY the relevant columns for this specific ticker.
+    CRITICAL FIX: Only drops rows where the PRICE is missing.
+    Keeps rows where MA is missing so the graph isn't blank.
     """
     # Identify relevant columns (Ticker + its MAs)
     relevant_cols = [ticker]
@@ -86,9 +86,14 @@ def make_safe_plot(df, ticker, name):
     # 2. Create a subset copy
     df_subset = df[valid_cols].copy()
     
-    # 3. Drop NaNs ONLY based on the Price column (to keep MAs even if partial)
-    #    or dropna() on the whole subset.
-    df_clean = df_subset.dropna() 
+    # 3. CRITICAL FIX HERE:
+    # Instead of df_subset.dropna() which kills everything if one MA is missing,
+    # we only drop rows where the actual TICKER PRICE is missing.
+    # Plotly handles NaNs in the MA columns automatically (it just breaks the line).
+    if ticker in df_subset.columns:
+        df_clean = df_subset.dropna(subset=[ticker])
+    else:
+        df_clean = df_subset.dropna()
 
     if df_clean.empty:
         return go.Figure()
