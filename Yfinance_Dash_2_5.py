@@ -11,7 +11,7 @@ server = Flask(__name__)
 # We do this BEFORE Dash so 'cache' exists when the pages try to import it
 cache = Cache(server, config={
     'CACHE_TYPE': 'FileSystemCache',
-    'CACHE_DIR': 'cache_directory',
+    'CACHE_DIR': 'cache_file',
     'CACHE_DEFAULT_TIMEOUT': 300,
     'CACHE_THRESHOLD': 500
 })

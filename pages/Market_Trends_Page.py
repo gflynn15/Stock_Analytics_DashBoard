@@ -48,23 +48,45 @@ commodity_names_ag = {"ZC=F":"CORN", "ZW=F":"WHEAT", "ZS=F":"SOY BEANS", "KC=F":
 
 @cache.memoize(timeout=600) # 10 Minutes
 def get_market_data(tickers, period, interval):
-    # threads=True is faster for multiple tickers
-    df = yf.download(tickers=tickers, period=period, interval=interval, threads=True, auto_adjust=True)
+    # Ensure unique list
+    tickers = list(set(tickers))
     
-    # --- CRITICAL FIX: Flatten columns for Multiple Tickers ---
-    # yfinance returns MultiIndex: (PriceType, Ticker) -> ('Close', '^GSPC')
-    # We flatten this to just Tickers: '^GSPC'
-    if isinstance(df.columns, pd.MultiIndex):
+    # Download with group_by='ticker' to get (Ticker, PriceType) structure
+    # This is more stable than the default behavior
+    try:
+        df = yf.download(tickers=tickers, period=period, interval=interval, group_by='ticker', threads=True, auto_adjust=True)
+    except Exception:
+        return pd.DataFrame().to_json()
+
+    # Initialize result DataFrame with the same index (Dates)
+    result_df = pd.DataFrame(index=df.index)
+    
+    # Robustly extract the 'Close' price for each ticker
+    for t in tickers:
         try:
-            # We prefer 'Close' price. 
-            if 'Close' in df.columns.get_level_values(0):
-                df = df.xs('Close', axis=1, level=0)
-            elif 'Adj Close' in df.columns.get_level_values(0):
-                df = df.xs('Adj Close', axis=1, level=0)
-        except Exception:
-            pass
+            # CASE 1: MultiIndex DataFrame (Typical for multiple tickers)
+            # Structure: df[Ticker]['Close']
+            if isinstance(df.columns, pd.MultiIndex):
+                if t in df.columns:
+                    if 'Close' in df[t].columns:
+                        result_df[t] = df[t]['Close']
+                    elif 'Adj Close' in df[t].columns:
+                        result_df[t] = df[t]['Adj Close']
             
-    return df.to_json(date_format='iso')
+            # CASE 2: Flat DataFrame (Typical for single ticker or weird yfinance response)
+            # Structure: df['Close']
+            else:
+                # If dataframe is flat, we assume it belongs to the single ticker we requested
+                # or the first valid one.
+                if 'Close' in df.columns:
+                    result_df[t] = df['Close']
+                elif 'Adj Close' in df.columns:
+                    result_df[t] = df['Adj Close']
+        except Exception:
+            continue
+            
+    return result_df.to_json(date_format='iso')
+
 
 @cache.memoize(timeout=1800) # 30 Minutes
 def get_market_news():
