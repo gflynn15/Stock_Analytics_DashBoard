@@ -32,6 +32,7 @@ from app_functions import make_plot
 from app_functions import price_card_info
 from app_functions import make_card
 from Yfinance_Dash_2_5 import cache
+thread_lock = threading.Lock()
 
 # %% [markdown]
 # - Developing the second page pf the financial stock analytics dash board
@@ -93,7 +94,8 @@ def news_gather(symbol):
         articles.append(news_df.loc["url",:])
     articles_df = pd.DataFrame(articles, columns=keys)
     return articles_df
-articles_df = news_gather("^GSPC")
+with thread_lock:
+    articles_df = news_gather("^GSPC")
 articles_df.columns = articles_df.columns.str.upper()
 articles_df = articles_df[["PUBDATE","TITLE","SUMMARY","CLICKTHROUGHURL"]]
 articles_df["PUBDATE"] = pd.to_datetime(articles_df["PUBDATE"]).dt.date
