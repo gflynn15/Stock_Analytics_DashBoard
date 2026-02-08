@@ -94,8 +94,7 @@ def news_gather(symbol):
         articles.append(news_df.loc["url",:])
     articles_df = pd.DataFrame(articles, columns=keys)
     return articles_df
-with thread_lock:
-    articles_df = news_gather("^GSPC")
+articles_df = news_gather("^GSPC")
 articles_df.columns = articles_df.columns.str.upper()
 articles_df = articles_df[["PUBDATE","TITLE","SUMMARY","CLICKTHROUGHURL"]]
 articles_df["PUBDATE"] = pd.to_datetime(articles_df["PUBDATE"]).dt.date
@@ -130,8 +129,7 @@ market_news = dash_table.DataTable(
             "textAlign": "left",
         },
     )
- 
-dash.register_page(__name__, name="MARKET OVERVIEW", path="/", order=1)
+dash.register_page(__name__, name="Stock_Review", path="/Stock_Review", order=2)
 load_figure_template('simplex')
 ## Designing the application layout below
 layout = dbc.Container([
@@ -327,7 +325,7 @@ layout = dbc.Container([
 def index_trend_chart(period, interval):
     with thread_lock:
         # market_indeces = ["^GSPC", "^DJI", "^IXIC"]
-        index_data = yf.download(tickers=market_indeces, period=period, interval=interval, threads=True, auto_adjust=True)
+        index_data = yf.download(tickers=market_indeces, period=period, interval=interval, threads=False, auto_adjust=True)
     
     # Use .copy() to prevent SettingWithCopy errors
     Closing_prices = index_data["Close"].copy()
@@ -343,15 +341,20 @@ def index_trend_chart(period, interval):
         
     # Calculate MAs
     for col in market_indeces:
-        Closing_prices[f"30MA"] = Closing_prices[col].rolling(window=30).mean()
-        Closing_prices[f"50MA"] = Closing_prices[col].rolling(window=50).mean()
-        Closing_prices[f"200MA"] = Closing_prices[col].rolling(window=200).mean()
+        if np.count_nonzero(Closing_prices.index) > 200:
+            Closing_prices[f"{col}_30MA"] = Closing_prices[col].rolling(window=30).mean()
+            Closing_prices[f"{col}_50MA"] = Closing_prices[col].rolling(window=50).mean()
+            Closing_prices[f"{col}_200MA"] = Closing_prices[col].rolling(window=200).mean()
+        elif 50<= np.count_nonzero(Closing_prices.index) > 200:
+            Closing_prices[f"{col}_30MA"] = Closing_prices[col].rolling(window=30).mean()
+            Closing_prices[f"{col}_50MA"] = Closing_prices[col].rolling(window=50).mean()
+        elif 30<= np.count_nonzero(Closing_prices.index) > 50:
+            Closing_prices[f"{col}_30MA"] = Closing_prices[col].rolling(window=30).mean()
 
-    closing_prices_nona = Closing_prices[pd.notna(Closing_prices)]
     # Create the figures using the actual string keys
-    sp500_fig = make_plot(closing_prices_nona,"^GSPC", "S&P 500 Price Trend")
-    dowjones_fig = make_plot(closing_prices_nona,"^DJI", "Dow Jones Industrial Average Price Trend")
-    nasdaq_fig = make_plot(closing_prices_nona,"^IXIC", "Nasdaq Composite Price Trend")
+    sp500_fig = make_plot(Closing_prices,"^GSPC", "S&P 500 Price Trend")
+    dowjones_fig = make_plot(Closing_prices,"^DJI", "Dow Jones Industrial Average Price Trend")
+    nasdaq_fig = make_plot(Closing_prices,"^IXIC", "Nasdaq Composite Price Trend")
     
     return sp500_card,dow_card,nas_card,sp500_fig, dowjones_fig, nasdaq_fig
 
@@ -375,7 +378,7 @@ def index_trend_chart(period, interval):
 @cache.memoize(timeout=600)
 def metals_trend_charts(period, interval, metal_1, metal_2, metal_3):
     with thread_lock:
-        metals_data = yf.download(tickers=[metal_1, metal_2, metal_3], period=period, interval=interval, threads=True, auto_adjust=True)
+        metals_data = yf.download(tickers=[metal_1, metal_2, metal_3], period=period, interval=interval, threads=False, auto_adjust=True)
     
     metals_closing = metals_data["Close"].copy()
     ##Getting Price Changes
@@ -388,14 +391,18 @@ def metals_trend_charts(period, interval, metal_1, metal_2, metal_3):
         metal_cards[key] = make_card(f"{key} PRICE CHANGE",val[0], f"{key} PREVIOUS PRICE", val[1])
     
     for col in metals_closing.columns:
-        metals_closing[f"30MA"] = metals_closing[col].rolling(window=30).mean()
-        metals_closing[f"50MA"] = metals_closing[col].rolling(window=50).mean()
-        metals_closing[f"200MA"] = metals_closing[col].rolling(window=200).mean()
-    
-    metals_closing_nona = metals_closing[pd.notna(metals_closing)]
-    metal_1_fig = make_plot(metals_closing_nona,metal_1, f"{commodity_names_m.get(metal_1, metal_1)} Price Trend")
-    metal_2_fig = make_plot(metals_closing_nona,metal_2, f"{commodity_names_m.get(metal_2, metal_2)} Price Trend")
-    metal_3_fig = make_plot(metals_closing_nona,metal_3, f"{commodity_names_m.get(metal_3, metal_3)} Price Trend")
+        if np.count_nonzero(metals_closing.index) > 200:
+            metals_closing[f"{col}_30MA"] = metals_closing[col].rolling(window=30).mean()
+            metals_closing[f"{col}_50MA"] = metals_closing[col].rolling(window=50).mean()
+            metals_closing[f"{col}_200MA"] = metals_closing[col].rolling(window=200).mean()
+        elif 50 <= np.count_nonzero(metals_closing.index) < 200:
+            metals_closing[f"{col}_30MA"] = metals_closing[col].rolling(window=30).mean()
+            metals_closing[f"{col}_50MA"] = metals_closing[col].rolling(window=50).mean()
+        elif 30 <= np.count_nonzero(metals_closing.index) < 50:
+            metals_closing[f"{col}_30MA"] = metals_closing[col].rolling(window=30).mean()
+    metal_1_fig = make_plot(metals_closing,metal_1, f"{commodity_names_m.get(metal_1, metal_1)} Price Trend")
+    metal_2_fig = make_plot(metals_closing,metal_2, f"{commodity_names_m.get(metal_2, metal_2)} Price Trend")
+    metal_3_fig = make_plot(metals_closing,metal_3, f"{commodity_names_m.get(metal_3, metal_3)} Price Trend")
     
     return metal_cards[metal_1], metal_cards[metal_2], metal_cards[metal_3],metal_1_fig, metal_2_fig, metal_3_fig
 
@@ -419,7 +426,7 @@ def metals_trend_charts(period, interval, metal_1, metal_2, metal_3):
 @cache.memoize(timeout=600)
 def energy_trend_charts(period, interval, energy_1, energy_2, energy_3):
     with thread_lock:
-        energy_data = yf.download(tickers=[energy_1, energy_2, energy_3], period=period, interval=interval, threads=True, auto_adjust=True)
+        energy_data = yf.download(tickers=[energy_1, energy_2, energy_3], period=period, interval=interval, threads=False, auto_adjust=True)
     
     energy_closing = energy_data["Close"].copy()
     ##Getting Price Changes
@@ -432,13 +439,19 @@ def energy_trend_charts(period, interval, energy_1, energy_2, energy_3):
         energy_cards[key] = make_card(f"{key} PRICE CHANGE",val[0], f"{key} PREVIOUS PRICE", val[1])
     
     for col in energy_closing.columns:
-        energy_closing[f"30MA"] = energy_closing[col].rolling(window=30).mean()
-        energy_closing[f"50MA"] = energy_closing[col].rolling(window=50).mean()
-        energy_closing[f"200MA"] = energy_closing[col].rolling(window=200).mean()
-    energy_closing_nona = energy_closing[pd.notna(energy_closing)]
-    energy_1_fig = make_plot(energy_closing_nona,energy_1, f"{commodity_names_e.get(energy_1, energy_1)} Price Trend")
-    energy_2_fig = make_plot(energy_closing_nona,energy_2, f"{commodity_names_e.get(energy_2, energy_2)} Price Trend")
-    energy_3_fig = make_plot(energy_closing_nona,energy_3, f"{commodity_names_e.get(energy_3, energy_3)} Price Trend")
+        if np.count_nonzero(energy_closing.index) > 200:
+            energy_closing[f"{col}_30MA"] = energy_closing[col].rolling(window=30).mean()
+            energy_closing[f"{col}_50MA"] = energy_closing[col].rolling(window=50).mean()
+            energy_closing[f"{col}_200MA"] = energy_closing[col].rolling(window=200).mean()
+        elif 50 <= np.count_nonzero(energy_closing.index) > 200:
+            energy_closing[f"{col}_30MA"] = energy_closing[col].rolling(window=30).mean()
+            energy_closing[f"{col}_50MA"] = energy_closing[col].rolling(window=50).mean()
+        elif 30 <= np.count_nonzero(energy_closing.index) > 50:
+            energy_closing[f"{col}_30MA"] = energy_closing[col].rolling(window=30).mean()
+
+    energy_1_fig = make_plot(energy_closing,energy_1, f"{commodity_names_e.get(energy_1, energy_1)} Price Trend")
+    energy_2_fig = make_plot(energy_closing,energy_2, f"{commodity_names_e.get(energy_2, energy_2)} Price Trend")
+    energy_3_fig = make_plot(energy_closing,energy_3, f"{commodity_names_e.get(energy_3, energy_3)} Price Trend")
     
     return energy_cards[energy_1], energy_cards[energy_2], energy_cards[energy_3],energy_1_fig, energy_2_fig, energy_3_fig
 
@@ -475,12 +488,18 @@ def ag_trend_charts(period, interval, ag_1, ag_2, ag_3):
         ag_cards[key] = make_card(f"{key} PRICE CHANGE",val[0], f"{key} PREVIOUS PRICE", val[1])
     
     for col in ag_closing.columns:
-        ag_closing[f"30MA"] = ag_closing[col].rolling(window=30).mean()
-        ag_closing[f"50MA"] = ag_closing[col].rolling(window=50).mean()
-        ag_closing[f"200MA"] = ag_closing[col].rolling(window=200).mean()
-    ag_closing_nona = ag_closing[pd.notna(ag_closing)]
-    ag_1_fig = make_plot(ag_closing_nona,ag_1, f"{commodity_names_ag.get(ag_1, ag_1)} Price Trend")
-    ag_2_fig = make_plot(ag_closing_nona,ag_2, f"{commodity_names_ag.get(ag_2, ag_2)} Price Trend")
-    ag_3_fig = make_plot(ag_closing_nona,ag_3, f"{commodity_names_ag.get(ag_3, ag_3)} Price Trend")
+        if np.count_nonzero(ag_closing.index) > 200:
+            ag_closing[f"{col}_30_MA"] = ag_closing[col].rolling(window=30).mean()
+            ag_closing[f"{col}_50_MA"] = ag_closing[col].rolling(window=50).mean()
+            ag_closing[f"{col}_200_MA"] = ag_closing[col].rolling(window=200).mean()
+        elif 50 <= np.count_nonzero(ag_closing.index) > 200:
+            ag_closing[f"{col}_30_MA"] = ag_closing[col].rolling(window=30).mean()
+            ag_closing[f"{col}_50_MA"] = ag_closing[col].rolling(window=50).mean()
+        elif 30 <= np.count_nonzero(ag_closing.index) > 50:
+            ag_closing[f"{col}_30_MA"] = ag_closing[col].rolling(window=30).mean()
+            
+    ag_1_fig = make_plot(ag_closing,ag_1, f"{commodity_names_ag.get(ag_1, ag_1)} Price Trend")
+    ag_2_fig = make_plot(ag_closing,ag_2, f"{commodity_names_ag.get(ag_2, ag_2)} Price Trend")
+    ag_3_fig = make_plot(ag_closing,ag_3, f"{commodity_names_ag.get(ag_3, ag_3)} Price Trend")
     
     return ag_cards[ag_1], ag_cards[ag_2], ag_cards[ag_3],ag_1_fig, ag_2_fig, ag_3_fig

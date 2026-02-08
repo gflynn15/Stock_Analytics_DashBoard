@@ -65,9 +65,11 @@ def make_card(change_header, change, price_header, price):
 
 # Function to create line chart (Crash-Proof Version)
 def make_plot(df, ticker, title_text):
+    df_columns = [x for x in df.columns if f"{ticker}" in x]
+    df_ticker = df[df_columns]
     fig = px.line(
-        x=df.index, 
-        y=df.columns, 
+        x=df_ticker.index, 
+        y=df_ticker.columns, 
         title=f"<b>{title_text}</b>",
         render_mode="svg"
     )
