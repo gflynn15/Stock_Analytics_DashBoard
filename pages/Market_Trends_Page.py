@@ -475,7 +475,7 @@ def energy_trend_charts(period, interval, energy_1, energy_2, energy_3):
 @cache.memoize(timeout=600)
 def ag_trend_charts(period, interval, ag_1, ag_2, ag_3):
     with thread_lock:
-        ag_data = yf.download(tickers=[ag_1, ag_2, ag_3], period=period, interval=interval, threads=True, auto_adjust=True)
+        ag_data = yf.download(tickers=[ag_1, ag_2, ag_3], period=period, interval=interval, threads=False, auto_adjust=True)
     
     ag_closing = ag_data["Close"].copy()
     ##Getting Price Changes
