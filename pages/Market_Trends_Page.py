@@ -50,6 +50,22 @@ commodity_names_ag = {"ZC=F":"CORN", "ZW=F":"WHEAT", "ZS=F":"SOY BEANS", "KC=F":
 def get_market_data(tickers, period, interval):
     # threads=True is faster for multiple tickers
     df = yf.download(tickers=tickers, period=period, interval=interval, threads=True, auto_adjust=True)
+    
+    # --- CRITICAL FIX: Flatten columns for Multiple Tickers ---
+    # yfinance returns MultiIndex: (PriceType, Ticker) -> ('Close', '^GSPC')
+    # We flatten this to just Tickers: '^GSPC'
+    if isinstance(df.columns, pd.MultiIndex):
+        try:
+            # We prefer 'Close' price. 
+            # This creates a DataFrame where columns are just the Tickers.
+            if 'Close' in df.columns.get_level_values(0):
+                df = df.xs('Close', axis=1, level=0)
+            elif 'Adj Close' in df.columns.get_level_values(0):
+                df = df.xs('Adj Close', axis=1, level=0)
+        except Exception:
+            # Fallback: If structure is unexpected, keep as is
+            pass
+            
     return df.to_json(date_format='iso')
 
 @cache.memoize(timeout=1800) # 30 Minutes
@@ -61,12 +77,12 @@ def get_market_news():
         return []
 
 # ==========================================
-# HELPER: Safe Plotting (FIXED)
+# HELPER: Safe Plotting
 # ==========================================
 def make_safe_plot(df, ticker, name):
     """
     Extracts ONLY the relevant columns for this specific ticker.
-    CRITICAL FIX: Only drops rows where the PRICE is missing.
+    Only drops rows where the PRICE is missing.
     Keeps rows where MA is missing so the graph isn't blank.
     """
     # Identify relevant columns (Ticker + its MAs)
@@ -77,19 +93,14 @@ def make_safe_plot(df, ticker, name):
             relevant_cols.append(col_name)
     
     # Filter the dataframe safely
-    # 1. Select only columns that exist
     valid_cols = [c for c in relevant_cols if c in df.columns]
     
     if not valid_cols:
         return go.Figure()
 
-    # 2. Create a subset copy
     df_subset = df[valid_cols].copy()
     
-    # 3. CRITICAL FIX HERE:
-    # Instead of df_subset.dropna() which kills everything if one MA is missing,
-    # we only drop rows where the actual TICKER PRICE is missing.
-    # Plotly handles NaNs in the MA columns automatically (it just breaks the line).
+    # Only drop rows where the actual TICKER PRICE is missing.
     if ticker in df_subset.columns:
         df_clean = df_subset.dropna(subset=[ticker])
     else:
@@ -269,10 +280,10 @@ layout = dbc.Container([
 # CALLBACKS
 # ==========================================
 
-# 1. NEWS CALLBACK (Safe for deployment)
+# 1. NEWS CALLBACK
 @callback(
     Output("market_news_table", "children"),
-    Input("index_period", "value") # Dummy input to trigger on load
+    Input("index_period", "value")
 )
 def update_news(dummy):
     news = get_market_news()
@@ -330,22 +341,10 @@ def update_news(dummy):
 def index_trend_chart(period, interval):
     # Fetch Cached JSON
     json_data = get_market_data(market_indeces, period, interval)
-    index_data = pd.read_json(json_data, convert_dates=True)
+    Closing_prices = pd.read_json(json_data, convert_dates=True)
     
-    if index_data.empty:
+    if Closing_prices.empty:
         return [html.Div("No Data")]*3 + [go.Figure()]*3
-
-    # Handle MultiIndex if present
-    if isinstance(index_data.columns, pd.MultiIndex):
-        try:
-            Closing_prices = index_data['Close'].copy()
-        except KeyError:
-            Closing_prices = index_data.copy() 
-    else:
-        if 'Close' in index_data:
-            Closing_prices = index_data['Close'].copy()
-        else:
-             Closing_prices = index_data.copy()
 
     # Calculate Changes
     sp500_change = price_card_info(Closing_prices, "^GSPC")
@@ -388,26 +387,15 @@ def index_trend_chart(period, interval):
 def metals_trend_charts(period, interval, metal_1, metal_2, metal_3):
     tickers = [metal_1, metal_2, metal_3]
     json_data = get_market_data(tickers, period, interval)
-    metals_data = pd.read_json(json_data, convert_dates=True)
+    metals_closing = pd.read_json(json_data, convert_dates=True)
 
-    if metals_data.empty:
+    if metals_closing.empty:
         return [html.Div("No Data")]*3 + [go.Figure()]*3
-
-    if 'Close' in metals_data.columns or (isinstance(metals_data.columns, pd.MultiIndex) and 'Close' in metals_data.columns.get_level_values(0)):
-        try:
-             metals_closing = metals_data["Close"].copy()
-        except:
-             metals_closing = metals_data.copy()
-    else:
-        metals_closing = metals_data.copy()
 
     metal_cards = {}
     for x in tickers:
-        if x in metals_closing.columns:
-            prices = price_card_info(metals_closing, x)
-            metal_cards[x] = make_card(f"{x} PRICE CHANGE", prices[0], f"{x} PREVIOUS PRICE", prices[1])
-        else:
-            metal_cards[x] = html.Div("N/A")
+        prices = price_card_info(metals_closing, x)
+        metal_cards[x] = make_card(f"{x} PRICE CHANGE", prices[0], f"{x} PREVIOUS PRICE", prices[1])
 
     for col in tickers:
         if col in metals_closing.columns:
@@ -415,7 +403,6 @@ def metals_trend_charts(period, interval, metal_1, metal_2, metal_3):
             metals_closing[f"{col}_50_MA"] = metals_closing[col].rolling(window=50).mean()
             metals_closing[f"{col}_200_MA"] = metals_closing[col].rolling(window=200).mean()
     
-    # FIXED: Use make_safe_plot instead of bulk dropna()
     fig1 = make_safe_plot(metals_closing, metal_1, f"{commodity_names_m.get(metal_1, metal_1)} Price Trend")
     fig2 = make_safe_plot(metals_closing, metal_2, f"{commodity_names_m.get(metal_2, metal_2)} Price Trend")
     fig3 = make_safe_plot(metals_closing, metal_3, f"{commodity_names_m.get(metal_3, metal_3)} Price Trend")
@@ -440,23 +427,15 @@ def metals_trend_charts(period, interval, metal_1, metal_2, metal_3):
 def energy_trend_charts(period, interval, energy_1, energy_2, energy_3):
     tickers = [energy_1, energy_2, energy_3]
     json_data = get_market_data(tickers, period, interval)
-    energy_data = pd.read_json(json_data, convert_dates=True)
+    energy_closing = pd.read_json(json_data, convert_dates=True)
     
-    if energy_data.empty:
+    if energy_closing.empty:
          return [html.Div("No Data")]*3 + [go.Figure()]*3
-
-    if 'Close' in energy_data:
-        energy_closing = energy_data["Close"].copy()
-    else:
-        energy_closing = energy_data.copy()
 
     energy_cards = {}
     for x in tickers:
-        if x in energy_closing.columns:
-            prices = price_card_info(energy_closing, x)
-            energy_cards[x] = make_card(f"{x} PRICE CHANGE", prices[0], f"{x} PREVIOUS PRICE", prices[1])
-        else:
-            energy_cards[x] = html.Div("N/A")
+        prices = price_card_info(energy_closing, x)
+        energy_cards[x] = make_card(f"{x} PRICE CHANGE", prices[0], f"{x} PREVIOUS PRICE", prices[1])
     
     for col in tickers:
         if col in energy_closing.columns:
@@ -464,7 +443,6 @@ def energy_trend_charts(period, interval, energy_1, energy_2, energy_3):
             energy_closing[f"{col}_50_MA"] = energy_closing[col].rolling(window=50).mean()
             energy_closing[f"{col}_200_MA"] = energy_closing[col].rolling(window=200).mean()
             
-    # FIXED: Use make_safe_plot
     fig1 = make_safe_plot(energy_closing, energy_1, f"{commodity_names_e.get(energy_1, energy_1)} Price Trend")
     fig2 = make_safe_plot(energy_closing, energy_2, f"{commodity_names_e.get(energy_2, energy_2)} Price Trend")
     fig3 = make_safe_plot(energy_closing, energy_3, f"{commodity_names_e.get(energy_3, energy_3)} Price Trend")
@@ -489,23 +467,15 @@ def energy_trend_charts(period, interval, energy_1, energy_2, energy_3):
 def ag_trend_charts(period, interval, ag_1, ag_2, ag_3):
     tickers = [ag_1, ag_2, ag_3]
     json_data = get_market_data(tickers, period, interval)
-    ag_data = pd.read_json(json_data, convert_dates=True)
+    ag_closing = pd.read_json(json_data, convert_dates=True)
     
-    if ag_data.empty:
+    if ag_closing.empty:
          return [html.Div("No Data")]*3 + [go.Figure()]*3
-
-    if 'Close' in ag_data:
-        ag_closing = ag_data["Close"].copy()
-    else:
-        ag_closing = ag_data.copy()
 
     ag_cards = {}
     for x in tickers:
-        if x in ag_closing.columns:
-            prices = price_card_info(ag_closing, x)
-            ag_cards[x] = make_card(f"{x} PRICE CHANGE", prices[0], f"{x} PREVIOUS PRICE", prices[1])
-        else:
-             ag_cards[x] = html.Div("N/A")
+        prices = price_card_info(ag_closing, x)
+        ag_cards[x] = make_card(f"{x} PRICE CHANGE", prices[0], f"{x} PREVIOUS PRICE", prices[1])
     
     for col in tickers:
         if col in ag_closing.columns:
@@ -513,7 +483,6 @@ def ag_trend_charts(period, interval, ag_1, ag_2, ag_3):
             ag_closing[f"{col}_50_MA"] = ag_closing[col].rolling(window=50).mean()
             ag_closing[f"{col}_200_MA"] = ag_closing[col].rolling(window=200).mean()
             
-    # FIXED: Use make_safe_plot
     fig1 = make_safe_plot(ag_closing, ag_1, f"{commodity_names_ag.get(ag_1, ag_1)} Price Trend")
     fig2 = make_safe_plot(ag_closing, ag_2, f"{commodity_names_ag.get(ag_2, ag_2)} Price Trend")
     fig3 = make_safe_plot(ag_closing, ag_3, f"{commodity_names_ag.get(ag_3, ag_3)} Price Trend")
