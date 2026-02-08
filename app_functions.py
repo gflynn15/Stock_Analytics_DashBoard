@@ -65,22 +65,9 @@ def make_card(change_header, change, price_header, price):
 
 # Function to create line chart (Crash-Proof Version)
 def make_plot(df, ticker, title_text):
-    if df is None or df.empty:
-        # Return an empty graph with a title explaining why
-        fig = px.line(title=f"No Data Available for {ticker}")
-        return fig
-
-    # 1. Define the columns we WANT to plot
-    target_cols = [ticker, f"{ticker}_30_MA", f"{ticker}_50_MA", f"{ticker}_200_MA"]
-    
-    # 2. Filter: Only keep columns that ACTUALLY EXIST in this dataframe
-    # This prevents the "ValueError: All arguments should have the same length"
-    valid_cols = [c for c in target_cols if c in df.columns]
-    
-    # 3. Create the plot using only valid columns
     fig = px.line(
-        df, 
-        y=valid_cols, 
+        x=df.index, 
+        y=df.columns, 
         title=f"<b>{title_text}</b>",
         render_mode="svg"
     )
@@ -91,7 +78,7 @@ def make_plot(df, ticker, title_text):
         legend=dict(
             orientation="h",
             yanchor="bottom",
-            y=-0.2,  # Moved down slightly to prevent overlapping the X-axis
+            y=-0.4,  # Moved down slightly to prevent overlapping the X-axis
             xanchor="center",
             x=0.5                          
         ),
