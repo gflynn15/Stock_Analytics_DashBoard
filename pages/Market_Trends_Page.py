@@ -90,7 +90,7 @@ commodity_names_ag = {
 thread_lock = threading.Lock()
 with thread_lock:
     stock = yf.Ticker("^GSPC")
-news = stock.get_news(count=10, tab="news", proxy=None)
+news = stock.get_news(count=10, tab="news")
 articles = []
 for arts in range(len(news)):
     keys = ["title","summary","pubDate","clickThroughUrl"]
