@@ -129,7 +129,7 @@ market_news = dash_table.DataTable(
             "textAlign": "left",
         },
     )
-dash.register_page(__name__, name="Stock_Review", path="/Stock_Review", order=2)
+dash.register_page(__name__, name="MARKET OVERVIEW", path="/", order=1)
 load_figure_template('simplex')
 ## Designing the application layout below
 layout = dbc.Container([
