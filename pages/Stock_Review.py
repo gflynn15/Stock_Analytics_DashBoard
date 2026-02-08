@@ -62,7 +62,6 @@ layout = dbc.Container([
                     id='trend_line', 
                     config={'responsive': True},
                     style={'height': '60vh', 'minHeight': '500px'},
-                    persistence=True
             ))
         ]),
         
@@ -78,7 +77,6 @@ layout = dbc.Container([
                         id='RSI', 
                         config={'responsive': True},
                         style={'height': '40vh', 'minHeight': '350px'},
-                        persistence=True
                     ))
                 ])
             ], xs=12, md=6, lg=6),
@@ -91,8 +89,7 @@ layout = dbc.Container([
                     children=dcc.Graph(
                         id='MACD', 
                         config={'responsive': True},
-                        style={'height': '40vh', 'minHeight': '350px'},
-                        persistence=True
+                        style={'height': '40vh', 'minHeight': '350px'}
                     ))
                 ])
             ], xs=12, md=6, lg=6)
@@ -132,8 +129,7 @@ layout = dbc.Container([
                     dcc.Graph(
                         id='EPS', 
                         config={'responsive': True},
-                        style={'height': '40vh', 'minHeight': '350px'},
-                        persistence=True
+                        style={'height': '40vh', 'minHeight': '350px'}
                     )
                 ])
             ])
