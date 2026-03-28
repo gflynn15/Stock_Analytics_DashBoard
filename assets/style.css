@@ -1,0 +1,40 @@
+/* Color of the text in the main box */
+.Select-value-label, 
+.Select-placeholder {
+    color: white !important;
+}
+
+/* Color of the individual tags in a multi-select dropdown */
+.Select-value {
+    background-color: #971d1d !important; /* Matches your box color */
+    color: white !important;
+    border: 1px solid #ffffff !important;
+}
+
+/* Color of the 'x' button on the tags */
+.Select-value-icon {
+    color: white !important;
+}
+
+/* Background and text color of the dropdown list options */
+.VirtualizedSelectOption {
+    background-color: #333 !important;
+    color: white !important;
+}
+
+.VirtualizedSelectOption:hover {
+    background-color: #555 !important;
+}
+
+/* 1. DEFAULT BASE (Mobile First View) */
+/* Targets the text under the slider marks */
+.rc-slider-mark-text {
+    font-size: 10px !important; /* Small enough to fit 25 numbers on a phone */
+}
+
+/* 2. DESKTOP OVERRIDE (Monitors and large tablets) */
+@media screen and (min-width: 768px) {
+    .rc-slider-mark-text {
+        font-size: 20px !important; /* Scales back up for big screens */
+    }
+}
