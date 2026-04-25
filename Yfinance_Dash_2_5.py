@@ -2,28 +2,14 @@ import dash
 from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
-from flask import Flask
-from flask_caching import Cache
-# 1. Initialize Flask Server FIRST
-server = Flask(__name__)
+# 1. Import App, Server, and Cache from our new initialization file
+from app_init import app, server, cache
 
-# 2. Initialize Cache using the Flask server
-# We do this BEFORE Dash so 'cache' exists when the pages try to import it
-cache = Cache(server, config={
-    'CACHE_TYPE': 'FileSystemCache',
-    'CACHE_DIR': 'cache_file',
-    'CACHE_DEFAULT_TIMEOUT': 300,
-    'CACHE_THRESHOLD': 500
-})
-
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SIMPLEX], use_pages=True, pages_folder="pages", server=server)
-load_figure_template('simplex')
-# ONLY shared layout elements stay here
-app.layout = dbc.Container([
+app.layout = dbc.Container([    
     dbc.Row([
-        dbc.Row([dbc.Col([html.H1("FIN HUB", style={"textAlign":"center","fontWeight":"bold"}),
-                          dbc.Button("Menu", id="menu-button", color="primary", className="m-2")], width=12),
-                 ]),
+        dbc.Row([dbc.Col([
+                        dbc.Button("Menu", id="menu-button", color="primary", size="lg", className="m-2")], width=12),
+                        ]),
         
         dbc.Col(dbc.Nav(
             [dbc.NavLink(page['name'], href=page['path'], active="exact") for page in dash.page_registry.values()],

@@ -11,3 +11,4 @@ __pycache__/
 cache_directory/
 
 *.db
+Archive_Drafts/

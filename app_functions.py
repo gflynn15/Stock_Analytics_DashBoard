@@ -45,64 +45,93 @@ def make_card(change_header, change, price_header, price):
     if change is None: change = 0
     if price is None: price = 0
 
+    status_color = "#00ff88" if change >= 0 else "#ff3333" # Neon Green / Neon Red
     status_class = "success" if change >= 0 else "danger"
     
-    card = dbc.CardGroup([
-        dbc.Card(
-            dbc.CardBody([
-                html.H6(change_header, className="text-muted medium",style={"fontSize":25}),
-                html.H2(f"{change:.2%}", className=f"text-{status_class} mb-0")
+    card = dbc.Card([
+        dbc.CardBody([
+            dbc.Row([
+                # Left Side: Percent Change
+                dbc.Col([
+                    html.H6(change_header, style={"fontSize": "16px", "opacity": "0.6", "textTransform": "uppercase"}),
+                    html.H2(f"{change:.2%}", style={"color": status_color, "fontWeight": "900", "fontSize": "32px"})
+                ], width=6, style={"borderRight": "1px solid rgba(255,255,255,0.1)"}),
+                
+                # Right Side: Price
+                dbc.Col([
+                    html.H6(price_header, style={"fontSize": "16px", "opacity": "0.6", "textTransform": "uppercase"}),
+                    html.H2(f"${price:,.2f}", style={"color": "white", "fontWeight": "900", "fontSize": "32px"})
+                ], width=6)
             ])
-        ),
-        dbc.Card(
-            dbc.CardBody([
-                html.H6(price_header, className="text-muted medium", style={"fontSize":25}),
-                html.H2(f"${price:,.2f}", className=f"text-{status_class} mb-0")    
-            ])
-        )       
-    ])
+        ])
+    ], style={
+        "backgroundColor": "rgba(255, 255, 255, 0.05)",
+        "backdropFilter": "blur(15px)",
+        "borderRadius": "15px",
+        "border": f"1px solid {status_color}33", # Faint glowing border
+        "boxShadow": f"0 4px 15px 0 {status_color}11",
+        "marginBottom": "15px"
+    }, className="animate__animated animate__fadeInUp")
     return card
 
 # Function to create line chart (Crash-Proof Version)
 def make_plot(df, ticker, title_text):
     df_columns = [x for x in df.columns if f"{ticker}" in x]
     df_ticker = df[df_columns]
+    
     fig = px.line(data_frame=df_ticker,
         x=df_ticker.index, 
         y=df_ticker.columns, 
         title=f"<b>{title_text}</b>",
-        render_mode="svg"
+        render_mode="svg",
+        template="cyborg"
     )
     
     fig.update_layout(
-        title={"font":{"size":25}},
+        title={"font":{"size":28, "family": "Inter", "color": "white"}},
         title_x=0.5,
         xaxis=dict(
             title="DATE",
-            title_font=dict(size=25),  # Size of the "X Axis Label"
-            tickfont=dict(size=18)# Size of the numbers/categories
+            title_font=dict(size=20, family="Inter", color="rgba(255,255,255,0.6)"),
+            tickfont=dict(size=14, color="rgba(255,255,255,0.8)"),
+            gridcolor="rgba(255,255,255,0.05)"
             ),
         yaxis=dict(
-            title="PRICE",
-            title_font=dict(size=25),
-            tickfont=dict(size=25),
+            title="VALUE",
+            title_font=dict(size=20, family="Inter", color="rgba(255,255,255,0.6)"),
+            tickfont=dict(size=14, color="rgba(255,255,255,0.8)"),
+            gridcolor="rgba(255,255,255,0.05)"
             ), 
-        legend_title_text="Trend Lines<br>",
+        legend_title_text="",
         legend=dict(
             orientation="h",
             yanchor="bottom",
-            y=-0.25,  # Moved down slightly to prevent overlapping the X-axis
+            y=-0.3,
             xanchor="center",
             x=0.5,
-            font=dict(size=18)                        
+            font=dict(size=14, color="white"),
+            bgcolor="rgba(0,0,0,0)"
         ),
-        hovermode="x",
-        hoverlabel=dict(font_size=18),
-        margin=dict(l=20, r=20, t=40, b=20) # Added bottom margin for legend
+        hovermode="x unified",
+        hoverlabel=dict(
+            font_size=16, 
+            font_family="Inter",
+            bgcolor="rgba(30, 30, 30, 0.9)",
+            bordercolor="rgba(255,255,255,0.1)"
+        ),
+        paper_bgcolor="rgba(0,0,0,0)", # Transparent background for glass look
+        plot_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=40, r=40, t=80, b=80)
     )
     
     fig.update_xaxes(
-        tickangle=45,
-        automargin=True
+        tickangle=0,
+        automargin=True,
+        showgrid=True
     )
-    return fig
+    fig.update_yaxes(showgrid=True)
+    
+    # Modern smooth lines
+    fig.update_traces(line=dict(width=3), hovertemplate="%{y:,.2f}")
+    
+    return fig
