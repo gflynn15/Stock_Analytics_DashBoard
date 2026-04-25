@@ -38,3 +38,14 @@
         font-size: 20px !important; /* Scales back up for big screens */
     }
 }
+
+/* Styling utilized for the market news header logo on the market pulse page */
+.market-news-header {
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('MARKET_PULSE_NEWS_HEADER.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 30px 0px 20px 0px; 
+    min-height: 400px;
+    color: white; /* Ensures any text inside defaults to white */
+}

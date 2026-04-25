@@ -50,13 +50,13 @@ def make_card(change_header, change, price_header, price):
     card = dbc.CardGroup([
         dbc.Card(
             dbc.CardBody([
-                html.H6(change_header, className="text-muted small"),
+                html.H6(change_header, className="text-muted medium",style={"fontSize":25}),
                 html.H2(f"{change:.2%}", className=f"text-{status_class} mb-0")
             ])
         ),
         dbc.Card(
             dbc.CardBody([
-                html.H6(price_header, className="text-muted small"),
+                html.H6(price_header, className="text-muted medium", style={"fontSize":25}),
                 html.H2(f"${price:,.2f}", className=f"text-{status_class} mb-0")    
             ])
         )       
@@ -75,15 +75,34 @@ def make_plot(df, ticker, title_text):
     )
     
     fig.update_layout(
-        title_x=0.5, 
-        legend_title_text="Trend Lines",
+        title={"font":{"size":25}},
+        title_x=0.5,
+        xaxis=dict(
+            title="DATE",
+            title_font=dict(size=25),  # Size of the "X Axis Label"
+            tickfont=dict(size=18)# Size of the numbers/categories
+            ),
+        yaxis=dict(
+            title="PRICE",
+            title_font=dict(size=25),
+            tickfont=dict(size=25),
+            ), 
+        legend_title_text="Trend Lines<br>",
         legend=dict(
             orientation="h",
             yanchor="bottom",
-            y=-0.4,  # Moved down slightly to prevent overlapping the X-axis
+            y=-0.25,  # Moved down slightly to prevent overlapping the X-axis
             xanchor="center",
-            x=0.5                          
+            x=0.5,
+            font=dict(size=18)                        
         ),
-        margin=dict(l=20, r=20, t=40, b=50) # Added bottom margin for legend
+        hovermode="x",
+        hoverlabel=dict(font_size=18),
+        margin=dict(l=20, r=20, t=40, b=20) # Added bottom margin for legend
+    )
+    
+    fig.update_xaxes(
+        tickangle=45,
+        automargin=True
     )
     return fig
