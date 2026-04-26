@@ -356,7 +356,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
                 "color":"#e0e0e0",
                 "backgroundColor": "#1a1a1c",
                 "border": "1px solid #333",
-                "fontSize":22,
+                "fontSize":14,
                 "fontFamily":"Inter"
             },
             style_header={
@@ -364,7 +364,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
                 "color": "white",
                 "fontWeight": "bold",
                 "textAlign": "center",
-                "fontSize":26,
+                "fontSize":20,
                 "border": "none"
             },
         )
@@ -403,13 +403,13 @@ def trend_chart(ticker: str, period: str, intervals: str):
         },
         xaxis=dict(
                 title="DATE",
-                title_font=dict(size=25),
-                tickfont=dict(size=18)
+                title_font=dict(size=16),
+                tickfont=dict(size=14)
                 ), 
         yaxis=dict(
                 title="PRICE",
-                title_font=dict(size=25),
-                tickfont=dict(size=18),
+                title_font=dict(size=16),
+                tickfont=dict(size=14),
                 range=[0, 100]
                 ),
         legend=dict(
@@ -448,21 +448,21 @@ def trend_chart(ticker: str, period: str, intervals: str):
                 "font": dict(color="#fee140")}, 
         xaxis=dict(
                 title="DATE",
-                title_font=dict(size=25),
-                tickfont=dict(size=18)
+                title_font=dict(size=16),
+                tickfont=dict(size=14)
                 ), 
         yaxis=dict(
                 title="MACD",
-                title_font=dict(size=25),
-                tickfont=dict(size=18)
+                title_font=dict(size=16),
+                tickfont=dict(size=14)
                 ),
         legend=dict(
             orientation="h",
             yanchor="bottom",
-            y=-.30,
+            y=-.35,
             xanchor="center",
             x=0.5,
-            font=dict(size=18)
+            font=dict(size=14)
                     )
                         )
 
