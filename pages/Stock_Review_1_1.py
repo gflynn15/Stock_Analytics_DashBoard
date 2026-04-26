@@ -149,7 +149,7 @@ try:
     stock_symbols = pd.read_sql(f"""SELECT DISTINCT "COMPANY" 
                                         FROM "HISTORICAL_STOCK_PRICES"
                                         WHERE "COMPANY" NOT IN ({symbols_removed_query_preped})""", 
-                                con=conn)
+                                con=engine)
     symbols = stock_symbols["COMPANY"].tolist()
 except Exception as e:
     symbols = ['MMM-3M','AOS-A. O. Smith','ABT-Abbott Laboratories',
@@ -503,10 +503,10 @@ def trend_chart(ticker: str, period: str, intervals: str):
 ###=============================================FUNDAMENTALS BREAKDOWN==============================================###
     company = ticker.split("-")[0]
     fundamentals = pd.read_sql(f"""SELECT * FROM "FUNDAMENTAL_DATA" WHERE "index" = '{company}'""", con=engine).rename(columns={"index":"Company"})
-        fundamentals.columns = fundamentals.columns.str.upper()
-        sector = fundamentals["SECTOR"][0]
-        sector_fundamentals = pd.read_sql(f"""SELECT * FROM "FUNDAMENTAL_DATA" WHERE "sector" = '{sector}'""", con=engine).rename(columns={"index":"Company"})
-        sector_fundamentals.columns = sector_fundamentals.columns.str.upper()
+    fundamentals.columns = fundamentals.columns.str.upper()
+    sector = fundamentals["SECTOR"][0]
+    sector_fundamentals = pd.read_sql(f"""SELECT * FROM "FUNDAMENTAL_DATA" WHERE "sector" = '{sector}'""", con=engine).rename(columns={"index":"Company"})
+    sector_fundamentals.columns = sector_fundamentals.columns.str.upper()
     ###Business Summary text###
     company_summary_text = fundamentals["LONGBUSINESSSUMMARY"]
 
