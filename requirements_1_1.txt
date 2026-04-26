@@ -101,3 +101,4 @@ scikit-learn
 openpyxl==3.1.2
 dash-bootstrap-templates
 Flask-Caching
+statsmodels
