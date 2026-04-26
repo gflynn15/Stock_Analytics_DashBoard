@@ -327,7 +327,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
     news_query_conversion = ticker.split("-")[0]
     with engine.connect() as conn:
         articles_df = pd.read_sql(text(f"""SELECT * FROM "STOCK_NEWS_TABLE" WHERE "COMPANY" = '{news_query_conversion}'"""), con=conn)
-    #articles_df.drop(columns=["index"], inplace=True)
+    articles_df.drop(columns=["index"], inplace=True)
     articles_df["PUBDATE"] = pd.to_datetime(articles_df["PUBDATE"]).dt.date 
     articles_df.sort_values(by="PUBDATE",ascending=False, inplace=True)
     articles_df = articles_df.iloc[:-15,:]
