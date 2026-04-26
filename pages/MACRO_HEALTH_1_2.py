@@ -128,7 +128,7 @@ def data_query(metrics_list, period, interval):
         except Exception as e:
             print(f"An error occurred while processing {e}")
     summary_pivot = summary_df.pivot_table(index="DATE", columns="METRIC", values="CLOSE")
-    summary_revised = summary_pivot.fillna(method="ffill")
+    summary_revised = summary_pivot.ffill()
     summary_revised.index = pd.to_datetime(summary_revised.index)
         ###Filtering the data based on the period selected by the user###
     latest_date = summary_revised.index.max()
