@@ -27,4 +27,4 @@ def fetch_sp500_data():
 
 if __name__ == "__main__":
     df = fetch_sp500_data()
-    df.to_csv(path_or_buf=r"C:\Users\Gabriel Flynn\OneDrive\OneDrive - University of Texas at El Paso\Documents\Python Projects\Yfinance_Stock_Data_Analysis\yfin_dash_app_api_backend\stock_symbols_list.csv")
+    df.to_excel(r"C:\Users\Gabriel Flynn\OneDrive\OneDrive - University of Texas at El Paso\Documents\Python Projects\Yfinance_Stock_Data_Analysis\yfin_dash_app_api_backend\Sp500Symbols.xlsx",engine="openpyxl")

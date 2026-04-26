@@ -134,4 +134,55 @@ def make_plot(df, ticker, title_text):
     # Modern smooth lines
     fig.update_traces(line=dict(width=3), hovertemplate="%{y:,.2f}")
     
-    return fig
+    return fig
+
+###=======================================Database Closing Price Query Function==========================================###
+def data_query(metrics_list, period, interval):
+    assets_query_list = "'"+"','".join(metrics_list)+"'"
+    try:
+        with engine.connect() as conn:
+            closing_prices = pd.read_sql(text(f"SELECT DATE, CLOSE, COMPANY AS METRIC FROM HISTORICAL_STOCK_PRICES WHERE COMPANY in ({assets_query_list})"), con=conn)
+            summary_pivot = closing_prices.pivot_table(index="DATE", columns="METRIC", values="CLOSE")
+            summary_revised = summary_pivot.fillna(method="ffill")
+            summary_revised.index = pd.to_datetime(summary_revised.index)
+            latest_date = summary_revised.index.max()
+        if period == "W":
+            start_date = latest_date - pd.DateOffset(weeks=1)
+        elif period == "M":
+            start_date = latest_date - pd.DateOffset(months=1)
+        elif period == "3M":
+            start_date = latest_date - pd.DateOffset(months=7)
+        elif period == "1Y":
+            start_date = latest_date - pd.DateOffset(years=2)
+        elif period == "2Y":
+            start_date = latest_date - pd.DateOffset(years=3)
+        elif period == "3Y":
+            start_date = latest_date - pd.DateOffset(years=4)
+        elif period == "5Y":
+            start_date = latest_date - pd.DateOffset(years=6)
+        elif period == "YTD":
+            start_date = pd.to_datetime(f"{latest_date.year}-01-01")
+        elif period == "MAX":
+            start_date = summary_revised.index.min()
+        else:
+            start_date = summary_revised.index.min()
+        summary_revised_filtered = summary_revised[summary_revised.index >= start_date]
+            ###resampling the data based on the interval selected by the user###
+        if interval == "D":
+            summary_revised_filtered_resampled = summary_revised_filtered.resample("D").last()
+        elif interval == "W":
+            summary_revised_filtered_resampled = summary_revised_filtered.resample("W").last()
+        elif interval == "M":
+            summary_revised_filtered_resampled = summary_revised_filtered.resample("M").last()
+        elif interval == "Q":
+            summary_revised_filtered_resampled = summary_revised_filtered.resample("Q").last()
+        elif interval == "Y":
+            summary_revised_filtered_resampled = summary_revised_filtered.resample("Y").last()
+        else:
+            summary_revised_filtered_resampled = summary_revised_filtered
+        summary_revised_filtered_resampled.dropna(axis=0, inplace=True)
+        summary_final = summary_revised_filtered_resampled.round(2)
+        return summary_final
+    except Exception as e:
+        print(f"Failed to Load {e}")
+    

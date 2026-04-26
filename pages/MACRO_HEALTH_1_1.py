@@ -37,22 +37,19 @@ from app_functions import price_card_info
 from app_functions import make_card
 from sqlalchemy import create_engine
 from sqlalchemy import text
-import sqlite3
+from app_functions import data_query
 from dotenv import load_dotenv
 ##Importing the Fred API key
 load_dotenv()
-fred_key = os.getenv("fred_api")
-from fredapi import Fred
-                                ###Created a variable to execute the fred call###
-fred_trigger = Fred(api_key=fred_key)
+render_url = os.getenv("render_db_url")
+
                                         ###Importing list of stocks###
-engine = create_engine("sqlite:///STOCK_DATA_WAREHOUSE.db")
-conn=sqlite3.connect('STOCK_DATA_WAREHOUSE.db')
+engine = create_engine(render_url)
 
 with engine.connect() as conn:
-    stock_symbols = pd.read_sql(text("SELECT DISTINCT COMPANY FROM HISTORICAL_STOCK_PRICES"), con=conn)
+    stock_symbols = pd.read_sql(text('SELECT DISTINCT "COMPANY" FROM "HISTORICAL_STOCK_PRICES"'), con=conn)
     stock_symbols_list = stock_symbols["COMPANY"].tolist()
-    macros_symbols = pd.read_sql(text("SELECT DISTINCT LEADING_INDICATOR FROM MACRO_INDICATOR_VALUES"), con=conn)
+    macros_symbols = pd.read_sql(text('SELECT DISTINCT "LEADING_INDICATOR" FROM "MACRO_INDICATOR_VALUES"'), con=conn)
     macros_symbols_list = macros_symbols["LEADING_INDICATOR"].tolist()
 
 stock_symbols_list.extend(macros_symbols_list)
@@ -95,84 +92,6 @@ leading_indicators_dict = {"GDP":["GDP","q"],
                             ###Adding in period and interval drop down list for the scatter plot###
 period = ["W","M","3M","1Y", "2Y","3Y","5Y","YTD","MAX"]
 interval = ["D", "W", "M", "Q", "Y"]
-                            ###Creating SQL Query Function for Data Extraction###
-def data_query(metrics_list, period, interval):
-    if not isinstance(metrics_list, list):
-        metrics_list = [metrics_list]
-    macro_list = []
-    assets_list = []
-    for x in metrics_list:
-        if x in leading_indicators_list:
-            macro_list.append(x)
-        else:
-            assets_list.append(x)
-            
-    macro_query_list = "'"+"','".join(macro_list)+"'"
-    assets_query_list = "'"+"','".join(assets_list)+"'"
-    
-    if len(macro_list) > 0 and len(assets_list) > 0:
-        try:
-            with engine.connect() as conn:
-                    macro_df = pd.read_sql(text(f"SELECT DATE, VALUE AS CLOSE, LEADING_INDICATOR AS METRIC FROM MACRO_INDICATOR_VALUES WHERE LEADING_INDICATOR in ({macro_query_list})"), con=conn)
-                    stock_df = pd.read_sql(text(f"SELECT DATE, CLOSE, COMPANY AS METRIC FROM HISTORICAL_STOCK_PRICES WHERE COMPANY in ({assets_query_list})"), con=conn) 
-                    summary_df = pd.concat([macro_df, stock_df], ignore_index=True, join="inner")
-        except Exception as e:
-            print(f"An error occurred while processing {e}")   
-    elif len(macro_list) > 0 and len(assets_list) == 0:
-        try:
-            with engine.connect() as conn:
-                summary_df = pd.read_sql(text(f"SELECT DATE, VALUE AS CLOSE, LEADING_INDICATOR AS METRIC FROM MACRO_INDICATOR_VALUES WHERE LEADING_INDICATOR in ({macro_query_list})"), con=conn)
-        except Exception as e:
-            print(f"An error occurred while processing {e}")
-    elif len(macro_list) == 0 and len(assets_list) > 0:
-        try:            
-            with engine.connect() as conn:
-                summary_df = pd.read_sql(text(f"SELECT DATE, CLOSE, COMPANY AS METRIC FROM HISTORICAL_STOCK_PRICES WHERE COMPANY in ({assets_query_list})"), con=conn)
-        except Exception as e:
-            print(f"An error occurred while processing {e}")
-    summary_pivot = summary_df.pivot_table(index="DATE", columns="METRIC", values="CLOSE")
-    summary_revised = summary_pivot.fillna(method="ffill")
-    summary_revised.index = pd.to_datetime(summary_revised.index)
-        ###Filtering the data based on the period selected by the user###
-    latest_date = summary_revised.index.max()
-    if period == "W":
-        start_date = latest_date - pd.DateOffset(weeks=1)
-    elif period == "M":
-        start_date = latest_date - pd.DateOffset(months=1)
-    elif period == "3M":
-        start_date = latest_date - pd.DateOffset(months=3)
-    elif period == "1Y":
-        start_date = latest_date - pd.DateOffset(years=1)
-    elif period == "2Y":
-        start_date = latest_date - pd.DateOffset(years=2)
-    elif period == "3Y":
-        start_date = latest_date - pd.DateOffset(years=3)
-    elif period == "5Y":
-        start_date = latest_date - pd.DateOffset(years=5)
-    elif period == "YTD":
-        start_date = pd.to_datetime(f"{latest_date.year}-01-01")
-    elif period == "MAX":
-        start_date = summary_revised.index.min()
-    else:
-        start_date = summary_revised.index.min()
-    summary_revised_filtered = summary_revised[summary_revised.index >= start_date]
-        ###resampling the data based on the interval selected by the user###
-    if interval == "D":
-        summary_revised_filtered_resampled = summary_revised_filtered.resample("D").last()
-    elif interval == "W":
-        summary_revised_filtered_resampled = summary_revised_filtered.resample("W").last()
-    elif interval == "M":
-        summary_revised_filtered_resampled = summary_revised_filtered.resample("M").last()
-    elif interval == "Q":
-        summary_revised_filtered_resampled = summary_revised_filtered.resample("Q").last()
-    elif interval == "Y":
-        summary_revised_filtered_resampled = summary_revised_filtered.resample("Y").last()
-    else:
-        summary_revised_filtered_resampled = summary_revised_filtered
-    summary_revised_filtered_resampled.dropna(axis=0, inplace=True)
-    summary_final = summary_revised_filtered_resampled.round(2)
-    return summary_final
-
 # %% [markdown]
 # 1. application layout
 

@@ -24,14 +24,7 @@ from app_functions import price_card_info
 from app_functions import make_card
 from sqlalchemy import create_engine
 from sqlalchemy import text
-import sqlite3
 from dotenv import load_dotenv
-                                        ###Importing the Fred API key###
-load_dotenv()
-#fred_key = os.getenv("fred_api")
-#from fredapi import Fred
-                                ###Created a variable to execute the fred call###
-#fred_trigger = Fred(api_key=fred_key)
 # This finds the directory one level up from where this notebook is located
 parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
 # Add that parent directory to the system path if it's not already there
@@ -42,7 +35,12 @@ from app_functions import price_card_info
 from app_functions import make_card
 import warnings
 warnings.filterwarnings("ignore") 
+from app_functions import data_query
 
+load_dotenv()
+render_url = os.getenv("render_db_url")
+
+                                        ###Importing list of stocks###
 
 # %% [markdown]
 # - Creating the database connection to the sqlite db
@@ -52,9 +50,7 @@ warnings.filterwarnings("ignore")
 
 # %%
 ###=========================================Creating the SQLite dbconnection==========================================###
-engine = create_engine("sqlite:///STOCK_DATA_WAREHOUSE.db")
-conn=sqlite3.connect('STOCK_DATA_WAREHOUSE.db')
-
+engine = create_engine(render_url)
 # %% [markdown]
 # - Creating a dash table creation function
 
@@ -133,58 +129,6 @@ def dash_table_create(df):
 # - Creating the extraction function for pulling closing price data from the sqlite database
 
 # %%
-def data_query(metrics_list, period, interval):
-    if not isinstance(metrics_list, list):
-        metrics_list = [metrics_list]
-    else:
-        metrics_list = metrics_list
-    assets_query_list = "'"+"','".join(metrics_list)+"'"
-    try:
-        with engine.connect() as conn:
-            closing_prices = pd.read_sql(text(f"SELECT DATE, CLOSE, COMPANY AS METRIC FROM HISTORICAL_STOCK_PRICES WHERE COMPANY in ({assets_query_list})"), con=conn)
-            summary_pivot = closing_prices.pivot_table(index="DATE", columns="METRIC", values="CLOSE")
-            summary_revised = summary_pivot.fillna(method="ffill")
-            summary_revised.index = pd.to_datetime(summary_revised.index)
-            latest_date = summary_revised.index.max()
-        if period == "W":
-            start_date = latest_date - pd.DateOffset(weeks=1)
-        elif period == "M":
-            start_date = latest_date - pd.DateOffset(months=1)
-        elif period == "3M":
-            start_date = latest_date - pd.DateOffset(months=7)
-        elif period == "1Y":
-            start_date = latest_date - pd.DateOffset(years=2)
-        elif period == "2Y":
-            start_date = latest_date - pd.DateOffset(years=3)
-        elif period == "3Y":
-            start_date = latest_date - pd.DateOffset(years=4)
-        elif period == "5Y":
-            start_date = latest_date - pd.DateOffset(years=6)
-        elif period == "YTD":
-            start_date = pd.to_datetime(f"{latest_date.year}-01-01")
-        elif period == "MAX":
-            start_date = summary_revised.index.min()
-        else:
-            start_date = summary_revised.index.min()
-        summary_revised_filtered = summary_revised[summary_revised.index >= start_date]
-            ###resampling the data based on the interval selected by the user###
-        if interval == "D":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("D").last()
-        elif interval == "W":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("W").last()
-        elif interval == "M":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("M").last()
-        elif interval == "Q":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("Q").last()
-        elif interval == "Y":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("Y").last()
-        else:
-            summary_revised_filtered_resampled = summary_revised_filtered
-        summary_revised_filtered_resampled.dropna(axis=0, inplace=True)
-        summary_final = summary_revised_filtered_resampled.round(2)
-        return summary_final
-    except Exception as e:
-        print(f"Failed to Load {e}")
 
 # %% [markdown]
 # - Importing the stock list to add into the drop down menus
@@ -203,9 +147,9 @@ symbols_removed_query_preped = "'" + ("','").join(symbols_removed_from_query) + 
 ###==========================================================Symbols ist import==============================================================###
 try:
     with engine.connect() as conn:
-        stock_symbols = pd.read_sql(text(f"""SELECT DISTINCT COMPANY 
-                                            FROM HISTORICAL_STOCK_PRICES
-                                            WHERE COMPANY NOT IN ({symbols_removed_query_preped})"""), 
+        stock_symbols = pd.read_sql(text(f"""SELECT DISTINCT "COMPANY" 
+                                            FROM "HISTORICAL_STOCK_PRICES"
+                                            WHERE "COMPANY" NOT IN ({symbols_removed_query_preped})"""), 
                                     con=conn)
         symbols = stock_symbols["COMPANY"].tolist()
 except Exception as e:
@@ -383,7 +327,7 @@ layout = dbc.Container([
 def trend_chart(ticker: str, period: str, intervals: str):
     news_query_conversion = ticker.split("-")[0]
     with engine.connect() as conn:
-        articles_df = pd.read_sql(text(f"SELECT * FROM STOCK_NEWS_TABLE WHERE COMPANY = '{news_query_conversion}'"), con=conn)
+        articles_df = pd.read_sql(text(f'SELECT * FROM "STOCK_NEWS_TABLE" WHERE "COMPANY" = "{news_query_conversion}"'), con=conn)
     articles_df.drop(columns=["index"], inplace=True)
     articles_df["PUBDATE"] = pd.to_datetime(articles_df["PUBDATE"]).dt.date 
     articles_df.sort_values(by="PUBDATE",ascending=False, inplace=True)
@@ -561,10 +505,10 @@ def trend_chart(ticker: str, period: str, intervals: str):
 ###=============================================FUNDAMENTALS BREAKDOWN==============================================###
     company = ticker.split("-")[0]
     with engine.connect() as conn:
-        fundamentals = pd.read_sql(text(f"""SELECT * FROM FUNDAMENTAL_DATA WHERE "index" = '{company}'"""), con=conn).rename(columns={"index":"Company"})
+        fundamentals = pd.read_sql(text(f"""SELECT * FROM "FUNDAMENTAL_DATA" WHERE "index" = '{company}'"""), con=conn).rename(columns={"index":"Company"})
         fundamentals.columns = fundamentals.columns.str.upper()
         sector = fundamentals["SECTOR"][0]
-        sector_fundamentals = pd.read_sql(text(f"""SELECT * FROM FUNDAMENTAL_DATA WHERE sector = '{sector}'"""), con=conn).rename(columns={"index":"Company"})
+        sector_fundamentals = pd.read_sql(text(f"""SELECT * FROM "FUNDAMENTAL_DATA" WHERE "sector" = '{sector}'"""), con=conn).rename(columns={"index":"Company"})
         sector_fundamentals.columns = sector_fundamentals.columns.str.upper()
     ###Business Summary text###
     company_summary_text = fundamentals["LONGBUSINESSSUMMARY"]

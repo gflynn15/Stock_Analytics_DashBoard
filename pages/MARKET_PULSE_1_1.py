@@ -38,12 +38,9 @@ from sqlalchemy import create_engine
 from sqlalchemy import text
 import sqlite3
 from dotenv import load_dotenv
-                                        ###Importing the Fred API key###
+                                        ###Importing the databse url###
 load_dotenv()
-fred_key = os.getenv("fred_api")
-from fredapi import Fred
-                                ###Created a variable to execute the fred call###
-fred_trigger = Fred(api_key=fred_key)
+render_url = os.getenv("render_db_url")
 # This finds the directory one level up from where this notebook is located
 parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
 # Add that parent directory to the system path if it's not already there
@@ -52,69 +49,16 @@ if parent_dir not in sys.path:
 from app_functions import make_plot
 from app_functions import price_card_info
 from app_functions import make_card
-
+from app_functions import data_query
 # %% [markdown]
 # - Creating the SQLite DB Connection strings
 
 # %%
 
-engine = create_engine("sqlite:///STOCK_DATA_WAREHOUSE.db")
-conn=sqlite3.connect('STOCK_DATA_WAREHOUSE.db')
+engine = create_engine(render_url)
 
 # %% [markdown]
-# - Creating Data Query Function
-
-# %%
-def data_query(metrics_list, period, interval):
-    assets_query_list = "'"+"','".join(metrics_list)+"'"
-    try:
-        with engine.connect() as conn:
-            closing_prices = pd.read_sql(text(f"SELECT DATE, CLOSE, COMPANY AS METRIC FROM HISTORICAL_STOCK_PRICES WHERE COMPANY in ({assets_query_list})"), con=conn)
-            summary_pivot = closing_prices.pivot_table(index="DATE", columns="METRIC", values="CLOSE")
-            summary_revised = summary_pivot.fillna(method="ffill")
-            summary_revised.index = pd.to_datetime(summary_revised.index)
-            latest_date = summary_revised.index.max()
-        if period == "W":
-            start_date = latest_date - pd.DateOffset(weeks=1)
-        elif period == "M":
-            start_date = latest_date - pd.DateOffset(months=1)
-        elif period == "3M":
-            start_date = latest_date - pd.DateOffset(months=7)
-        elif period == "1Y":
-            start_date = latest_date - pd.DateOffset(years=2)
-        elif period == "2Y":
-            start_date = latest_date - pd.DateOffset(years=3)
-        elif period == "3Y":
-            start_date = latest_date - pd.DateOffset(years=4)
-        elif period == "5Y":
-            start_date = latest_date - pd.DateOffset(years=6)
-        elif period == "YTD":
-            start_date = pd.to_datetime(f"{latest_date.year}-01-01")
-        elif period == "MAX":
-            start_date = summary_revised.index.min()
-        else:
-            start_date = summary_revised.index.min()
-        summary_revised_filtered = summary_revised[summary_revised.index >= start_date]
-            ###resampling the data based on the interval selected by the user###
-        if interval == "D":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("D").last()
-        elif interval == "W":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("W").last()
-        elif interval == "M":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("M").last()
-        elif interval == "Q":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("Q").last()
-        elif interval == "Y":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("Y").last()
-        else:
-            summary_revised_filtered_resampled = summary_revised_filtered
-        summary_revised_filtered_resampled.dropna(axis=0, inplace=True)
-        summary_final = summary_revised_filtered_resampled.round(2)
-        return summary_final
-    except Exception as e:
-        print(f"Failed to Load {e}")
-    
-
+# %%    
 # %% [markdown]
 # - Developing the second page pf the financial stock analytics dash board
 # - Steps to follow below
@@ -133,7 +77,7 @@ period = ["W","M","3M","1Y", "2Y","3Y","5Y","YTD","MAX"]
 interval = ["D", "W", "M", "Q", "Y"]
 
 with engine.connect() as conn:
-    stock_symbols = pd.read_sql(text("SELECT DISTINCT COMPANY FROM HISTORICAL_STOCK_PRICES"), con=conn)
+    stock_symbols = pd.read_sql(text('SELECT DISTINCT "COMPANY" FROM "HISTORICAL_STOCK_PRICES"'), con=conn)
     stock_symbols_list = stock_symbols["COMPANY"].tolist()
 
 # %% [markdown]
@@ -172,7 +116,7 @@ ag = ["ZC=F-Corn","ZW=F-Wheat","KC=F-Coffee","LE=F-LiveCattle","HE=F-LeanHogs","
 
 # %%
 with engine.connect() as conn:
-    articles_df = pd.read_sql(text("SELECT * FROM STOCK_NEWS_TABLE WHERE COMPANY in ('^GSPC','^DJI','^IXIC')"), con=conn)
+    articles_df = pd.read_sql(text("""SELECT * FROM "STOCK_NEWS_TABLE" WHERE "COMPANY" IN ('^GSPC','^DJI','^IXIC')"""), con=conn)
 articles_df.drop(columns=["index"], inplace=True)
 articles_df["PUBDATE"] = pd.to_datetime(articles_df["PUBDATE"]).dt.date
 articles_df.sort_values(by="PUBDATE",ascending=False, inplace=True)
