@@ -154,7 +154,7 @@ def data_query(metrics_list, period, interval):
         with engine.connect() as conn:
             closing_prices = pd.read_sql(text(f"""SELECT "DATE", "CLOSE", "COMPANY" AS "METRIC" FROM "HISTORICAL_STOCK_PRICES" WHERE "COMPANY" in ({assets_query_list})"""), con=conn)
             summary_pivot = closing_prices.pivot_table(index="DATE", columns="METRIC", values="CLOSE")
-            summary_revised = summary_pivot.fillna(method="ffill")
+            #summary_revised = summary_pivot.fillna(method="ffill")
             summary_revised.index = pd.to_datetime(summary_revised.index)
             latest_date = summary_revised.index.max()
         if period == "W":
