@@ -4,6 +4,13 @@ import pandas as pd
 import plotly.express as px
 import dash_bootstrap_components as dbc
 from dash import html
+import os
+from sqlalchemy import create_engine
+from dotenv import load_dotenv
+
+load_dotenv()
+render_url = os.getenv("render_db_url")
+engine = create_engine(render_url)
 
 ## Price change function (Robust Version)
 def price_card_info(df, col):
