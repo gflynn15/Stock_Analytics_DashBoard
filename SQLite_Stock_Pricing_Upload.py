@@ -90,7 +90,7 @@ yfin_db_df.to_sql(name="HISTORICAL_STOCK_PRICES",
 # Open an explicit connection door to the database
 with engine.connect() as conn:
     # Use the connection (conn) instead of the engine
-    yfin_table = pd.read_sql(text('SELECT * FROM HISTORICAL_STOCK_PRICES'), con=conn)
+    yfin_table = pd.read_sql('SELECT * FROM HISTORICAL_STOCK_PRICES', con=conn)
 
 
 # %% [markdown]
@@ -155,7 +155,7 @@ fred_df_summary.to_sql(name="MACRO_INDICATOR_VALUES",
 # Open an explicit connection door to the database
 with engine.connect() as conn:
     # Use the connection (conn) instead of the engine
-    macro_table = pd.read_sql(text('SELECT * FROM MACRO_INDICATOR_VALUES'), con=conn)
+    macro_table = pd.read_sql('SELECT * FROM MACRO_INDICATOR_VALUES', con=conn)
 
 # %% [markdown]
 # - News Upload for page 2 of the stock application
@@ -210,7 +210,7 @@ equities_df.to_sql(
                 if_exists='replace')
 
 with engine.connect() as conn:
-    news_table = pd.read_sql(text("SELECT * FROM STOCK_NEWS_TABLE"), con=conn)
+    news_table = pd.read_sql("SELECT * FROM STOCK_NEWS_TABLE", con=conn)
 
 # %%
 engine = create_engine("sqlite:///STOCK_DATA_WAREHOUSE.db")
