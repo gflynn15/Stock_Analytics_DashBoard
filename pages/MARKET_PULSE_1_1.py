@@ -37,10 +37,6 @@ from app_functions import make_card
 from sqlalchemy import create_engine
 from sqlalchemy import text
 import sqlite3
-from dotenv import load_dotenv
-                                        ###Importing the databse url###
-load_dotenv()
-render_url = os.getenv("render_db_url")
 # This finds the directory one level up from where this notebook is located
 parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
 # Add that parent directory to the system path if it's not already there
@@ -52,8 +48,10 @@ from app_functions import make_card
 from app_functions import data_query
 # %% [markdown]
 # - Creating the SQLite DB Connection strings
-
-# %%
+from dotenv import load_dotenv
+                                        ###Importing the databse url###
+load_dotenv()
+render_url = os.getenv("render_db_url")
 
 engine = create_engine(render_url)
 
@@ -76,8 +74,9 @@ engine = create_engine(render_url)
 period = ["W","M","3M","1Y", "2Y","3Y","5Y","YTD","MAX"]
 interval = ["D", "W", "M", "Q", "Y"]
 
-stock_symbols = pd.read_sql('SELECT DISTINCT "COMPANY" FROM "HISTORICAL_STOCK_PRICES"', con=engine)
-stock_symbols_list = stock_symbols["COMPANY"].tolist()
+with engine.connect() as conn:
+    stock_symbols = pd.read_sql(text('SELECT DISTINCT "COMPANY" FROM "HISTORICAL_STOCK_PRICES"'), con=conn)
+    stock_symbols_list = stock_symbols["COMPANY"].tolist()
 
 # %% [markdown]
 # - Creating equity dictionaries to add into graphics
@@ -114,11 +113,12 @@ ag = ["ZC=F-Corn","ZW=F-Wheat","KC=F-Coffee","LE=F-LiveCattle","HE=F-LeanHogs","
 # - Gathering the market news for the market table
 
 # %%
-articles_df = pd.read_sql("""SELECT * FROM "STOCK_NEWS_TABLE" WHERE "COMPANY" IN ('^GSPC','^DJI','^IXIC')""", con=engine)
-articles_df.drop(columns=["index"], inplace=True)
-articles_df["PUBDATE"] = pd.to_datetime(articles_df["PUBDATE"]).dt.date
-articles_df.sort_values(by="PUBDATE",ascending=False, inplace=True)
-articles_df = articles_df.iloc[:-15,:]
+with engine.connect() as conn:
+    articles_df = pd.read_sql(text("""SELECT * FROM "STOCK_NEWS_TABLE" WHERE "COMPANY" IN ('^GSPC','^DJI','^IXIC')"""), con=conn)
+    #articles_df.drop(columns=["index"], inplace=True)
+    articles_df["PUBDATE"] = pd.to_datetime(articles_df["PUBDATE"]).dt.date
+    articles_df.sort_values(by="PUBDATE",ascending=False, inplace=True)
+    articles_df = articles_df.iloc[:-15,:]
 
 ##Creating the dash table
 market_news = dash_table.DataTable(
@@ -552,10 +552,5 @@ def ag_trend_charts(period, interval, ag_1, ag_2, ag_3):
     ag_3_fig = make_plot(ag_closing_nona,ag_3, f"{ag_3.split('-')[0]} Price Trend")
     
     return ag_cards[ag_1], ag_cards[ag_2], ag_cards[ag_3],ag_1_fig, ag_2_fig, ag_3_fig
-
-# %%
-##Running the application
-#if __name__ == "__main__":
-#   app.run(jupyter_mode='external',debug=True)
 
 

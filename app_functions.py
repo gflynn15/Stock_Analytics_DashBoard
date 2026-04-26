@@ -5,7 +5,7 @@ import plotly.express as px
 import dash_bootstrap_components as dbc
 from dash import html
 import os
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -145,13 +145,18 @@ def make_plot(df, ticker, title_text):
 
 ###=======================================Database Closing Price Query Function==========================================###
 def data_query(metrics_list, period, interval):
+    if not isinstance(metrics_list, list):
+        metrics_list = [metrics_list]
+    else:
+        metrics_list = metrics_list
     assets_query_list = "'"+"','".join(metrics_list)+"'"
     try:
-        closing_prices = pd.read_sql(f"SELECT DATE, CLOSE, COMPANY AS METRIC FROM HISTORICAL_STOCK_PRICES WHERE COMPANY in ({assets_query_list})", con=engine)
-        summary_pivot = closing_prices.pivot_table(index="DATE", columns="METRIC", values="CLOSE")
-        summary_revised = summary_pivot.fillna(method="ffill")
-        summary_revised.index = pd.to_datetime(summary_revised.index)
-        latest_date = summary_revised.index.max()
+        with engine.connect() as conn:
+            closing_prices = pd.read_sql(text(f"""SELECT "DATE", "CLOSE", "COMPANY" AS "METRIC" FROM "HISTORICAL_STOCK_PRICES" WHERE "COMPANY" in ({assets_query_list})"""), con=conn)
+            summary_pivot = closing_prices.pivot_table(index="DATE", columns="METRIC", values="CLOSE")
+            summary_revised = summary_pivot.fillna(method="ffill")
+            summary_revised.index = pd.to_datetime(summary_revised.index)
+            latest_date = summary_revised.index.max()
         if period == "W":
             start_date = latest_date - pd.DateOffset(weeks=1)
         elif period == "M":

@@ -9,7 +9,6 @@
 #         5. The Beige book
 
 # %%
-from app_init import cache
 import numpy as np
 import dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
@@ -37,19 +36,21 @@ from app_functions import price_card_info
 from app_functions import make_card
 from sqlalchemy import create_engine
 from sqlalchemy import text
-from app_functions import data_query
+import sqlite3
+import psycopg2
 from dotenv import load_dotenv
-##Importing the Fred API key
+##Importing cloud url
 load_dotenv()
 render_url = os.getenv("render_db_url")
 
                                         ###Importing list of stocks###
 engine = create_engine(render_url)
 
-stock_symbols = pd.read_sql('SELECT DISTINCT "COMPANY" FROM "HISTORICAL_STOCK_PRICES"', con=engine)
-stock_symbols_list = stock_symbols["COMPANY"].tolist()
-macros_symbols = pd.read_sql('SELECT DISTINCT "LEADING_INDICATOR" FROM "MACRO_INDICATOR_VALUES"', con=engine)
-macros_symbols_list = macros_symbols["LEADING_INDICATOR"].tolist()
+with engine.connect() as conn:
+    stock_symbols = pd.read_sql(text('SELECT DISTINCT "COMPANY" FROM "HISTORICAL_STOCK_PRICES"'), con=conn)
+    stock_symbols_list = stock_symbols["COMPANY"].tolist()
+    macros_symbols = pd.read_sql(text('SELECT DISTINCT "LEADING_INDICATOR" FROM "MACRO_INDICATOR_VALUES"'), con=conn)
+    macros_symbols_list = macros_symbols["LEADING_INDICATOR"].tolist()
 
 stock_symbols_list.extend(macros_symbols_list)
 
@@ -91,6 +92,84 @@ leading_indicators_dict = {"GDP":["GDP","q"],
                             ###Adding in period and interval drop down list for the scatter plot###
 period = ["W","M","3M","1Y", "2Y","3Y","5Y","YTD","MAX"]
 interval = ["D", "W", "M", "Q", "Y"]
+                            ###Creating SQL Query Function for Data Extraction###
+def data_query(metrics_list, period, interval):
+    if not isinstance(metrics_list, list):
+        metrics_list = [metrics_list]
+    macro_list = []
+    assets_list = []
+    for x in metrics_list:
+        if x in leading_indicators_list:
+            macro_list.append(x)
+        else:
+            assets_list.append(x)
+            
+    macro_query_list = "'"+"','".join(macro_list)+"'"
+    assets_query_list = "'"+"','".join(assets_list)+"'"
+    
+    if len(macro_list) > 0 and len(assets_list) > 0:
+        try:
+            with engine.connect() as conn:
+                    macro_df = pd.read_sql(text(f'SELECT "DATE", "VALUE" AS "CLOSE", "LEADING_INDICATOR" AS "METRIC" FROM "MACRO_INDICATOR_VALUES" WHERE "LEADING_INDICATOR" in ({macro_query_list})'), con=conn)
+                    stock_df = pd.read_sql(text(f'SELECT "DATE", "CLOSE", "COMPANY" AS "METRIC" FROM "HISTORICAL_STOCK_PRICES" WHERE "COMPANY" in ({assets_query_list})'), con=conn) 
+                    summary_df = pd.concat([macro_df, stock_df], ignore_index=True, join="inner")
+        except Exception as e:
+            print(f"An error occurred while processing {e}")   
+    elif len(macro_list) > 0 and len(assets_list) == 0:
+        try:
+            with engine.connect() as conn:
+                summary_df = pd.read_sql(text(f'SELECT "DATE", "VALUE" AS "CLOSE", "LEADING_INDICATOR" AS "METRIC" FROM "MACRO_INDICATOR_VALUES" WHERE "LEADING_INDICATOR" in ({macro_query_list})'), con=conn)
+        except Exception as e:
+            print(f"An error occurred while processing {e}")
+    elif len(macro_list) == 0 and len(assets_list) > 0:
+        try:            
+            with engine.connect() as conn:
+                summary_df = pd.read_sql(text(f'SELECT "DATE", "CLOSE", "COMPANY" AS "METRIC" FROM "HISTORICAL_STOCK_PRICES" WHERE "COMPANY" in ({assets_query_list})'), con=conn)
+        except Exception as e:
+            print(f"An error occurred while processing {e}")
+    summary_pivot = summary_df.pivot_table(index="DATE", columns="METRIC", values="CLOSE")
+    summary_revised = summary_pivot.fillna(method="ffill")
+    summary_revised.index = pd.to_datetime(summary_revised.index)
+        ###Filtering the data based on the period selected by the user###
+    latest_date = summary_revised.index.max()
+    if period == "W":
+        start_date = latest_date - pd.DateOffset(weeks=1)
+    elif period == "M":
+        start_date = latest_date - pd.DateOffset(months=1)
+    elif period == "3M":
+        start_date = latest_date - pd.DateOffset(months=3)
+    elif period == "1Y":
+        start_date = latest_date - pd.DateOffset(years=1)
+    elif period == "2Y":
+        start_date = latest_date - pd.DateOffset(years=2)
+    elif period == "3Y":
+        start_date = latest_date - pd.DateOffset(years=3)
+    elif period == "5Y":
+        start_date = latest_date - pd.DateOffset(years=5)
+    elif period == "YTD":
+        start_date = pd.to_datetime(f"{latest_date.year}-01-01")
+    elif period == "MAX":
+        start_date = summary_revised.index.min()
+    else:
+        start_date = summary_revised.index.min()
+    summary_revised_filtered = summary_revised[summary_revised.index >= start_date]
+        ###resampling the data based on the interval selected by the user###
+    if interval == "D":
+        summary_revised_filtered_resampled = summary_revised_filtered.resample("D").last()
+    elif interval == "W":
+        summary_revised_filtered_resampled = summary_revised_filtered.resample("W").last()
+    elif interval == "M":
+        summary_revised_filtered_resampled = summary_revised_filtered.resample("M").last()
+    elif interval == "Q":
+        summary_revised_filtered_resampled = summary_revised_filtered.resample("Q").last()
+    elif interval == "Y":
+        summary_revised_filtered_resampled = summary_revised_filtered.resample("Y").last()
+    else:
+        summary_revised_filtered_resampled = summary_revised_filtered
+    summary_revised_filtered_resampled.dropna(axis=0, inplace=True)
+    summary_final = summary_revised_filtered_resampled.round(2)
+    return summary_final
+
 # %% [markdown]
 # 1. application layout
 
@@ -98,23 +177,22 @@ interval = ["D", "W", "M", "Q", "Y"]
 ##Establishign the application variable
 #dash.register_page(__name__, name="Market_Review", path="/", order=1)
 
-#from flask import Flask
-#from flask_caching import Cache
+from flask import Flask
+from flask_caching import Cache
 
 ## 1. Initialize Flask Server FIRST
-#server = Flask(__name__)
+server = Flask(__name__)
 
 ##Creating a cache file to store the data
-#cache = Cache(server, config={
-#    'CACHE_TYPE': 'FileSystemCache',
-#    'CACHE_DIR': 'MACRO_HEALTH_cache_file',
-#    'CACHE_DEFAULT_TIMEOUT': 300,
-#    'CACHE_THRESHOLD': 500
-#})
+cache = Cache(server, config={
+    'CACHE_TYPE': 'FileSystemCache',
+    'CACHE_DIR': 'MACRO_HEALTH_cache_file',
+    'CACHE_DEFAULT_TIMEOUT': 300,
+    'CACHE_THRESHOLD': 500
+})
 
 
-#app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG, "https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"])#, use_pages=True, pages_folder="pages", server=server)
-dash.register_page(__name__, name="MACRO-ECONOMICS HEALTH", path="/",order=0, external_stylesheets=[dbc.themes.CYBORG, "https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"])
+dash.register_page(__name__, name="Macro Health",path="/", order=1, external_stylesheets=[dbc.themes.CYBORG, "https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"])
 load_figure_template('cyborg')
 
 
@@ -161,42 +239,43 @@ layout = dbc.Container([
     dbc.Card(dbc.CardBody([
         dbc.Row([
             dbc.Col([
-                html.Label("INDICATOR SELECTION", style={"fontSize":25, "fontWeight":"bold", "color":"#00f2fe"}),
+                html.Label("INDICATOR SELECTION", style={"fontSize":20, "fontWeight":"bold", "color":"#00f2fe"}),
                 dcc.Dropdown(stock_symbols_list, 
                          ["^GSPC-SP500","INDUSTRIAL PRODUCTION","M2 MONEY SUPPLY"], 
                          id="metrics_list", multi=True, optionHeight=50,
-                         style={"fontSize":"24px"})
+                         style={"fontSize":"18px"})
             ], xs=12, lg=6),
             
             dbc.Col([
-                html.Label("TIMEFRAME", style={"fontSize":25, "fontWeight":"bold", "color":"#00f2fe"}),
-                dcc.Dropdown(period,"5Y",id="period1_drop",multi=False, style={"fontSize":"24px"})
+                html.Label("TIMEFRAME", style={"fontSize":20, "fontWeight":"bold", "color":"#00f2fe"}),
+                dcc.Dropdown(period,"5Y",id="period1_drop",multi=False, style={"fontSize":"18px"})
             ], xs=6, lg=3),
             
             dbc.Col([
-                html.Label("INTERVAL", style={"fontSize":25, "fontWeight":"bold", "color":"#00f2fe"}),
-                dcc.Dropdown(interval, "D",id="interval1_drop",multi=False, style={"fontSize":"24px"})
+                html.Label("INTERVAL", style={"fontSize":20, "fontWeight":"bold", "color":"#00f2fe"}),
+                dcc.Dropdown(interval, "D",id="interval1_drop",multi=False, style={"fontSize":"18px"})
             ], xs=6, lg=3) 
         ], className="mb-4"),
         
         ###Lag Feature Implementation for the heat map###
         dbc.Row([
             dbc.Col([
-                html.Label("FEATURES TO LAG", style={"fontSize":25, "fontWeight":"bold", "color":"#fa709a"}),
+                html.Label("FEATURES TO LAG", style={"fontSize":20, "fontWeight":"bold", "color":"#fa709a"}),
                 dcc.Dropdown(
                     id="lag_feature_selector", 
                     multi=True, 
                     placeholder="Select indicators to shift...",
-                    style={"fontSize":"24px"}
+                    style={"fontSize":"18px"}
                 )
             ], xs=12, lg=6),
         
             dbc.Col([
-                html.Label("LAG DEPTH (MONTHS)", style={"fontSize":25, "fontWeight":"bold", "color":"#fa709a"}),
+                html.Label("LAG DEPTH (MONTHS)", style={"fontSize":20, "fontWeight":"bold", "color":"#fa709a"}),
                 dcc.Slider(
                     id="lag_slider",
                     min=0, max=12, step=1, value=0,
-                    marks={i: {'label': str(i), 'style': {'color': 'white'}} for i in range(0, 13)}
+                    marks={i: {'label': str(i), 'style': {'color': 'white'}} for i in range(0, 13)},
+                    tooltip={"always_visible": True, "placement": "bottom"}
                 )
             ], xs=12, lg=6)
         ])
@@ -217,42 +296,43 @@ layout = dbc.Container([
         dbc.Row([
             dbc.Col([html.H3("🛠️ REGRESSION CONTROLS", style={'textAlign': 'center', 'color': '#00f2fe', "fontWeight":"bold", "marginBottom":"20px"})], width=12),
             dbc.Col([
-                html.Label("METRIC 1 (X)", style={"fontSize":24, "fontWeight":"bold"}),
-                dcc.Dropdown(stock_symbols_list, "^GSPC-SP500", id="scatter&line_input1", multi=False, style={"fontSize":"24px"})
+                html.Label("METRIC 1 (X)", style={"fontSize":18, "fontWeight":"bold"}),
+                dcc.Dropdown(stock_symbols_list, "^GSPC-SP500", id="scatter&line_input1", multi=False, style={"fontSize":"16px"})
             ], xs=12, md=3), 
             dbc.Col([
-                html.Label("METRIC 2 (Y)", style={"fontSize":24, "fontWeight":"bold"}),
-                dcc.Dropdown(stock_symbols_list, "AMD-Advanced Micro Devices", id="scatter&line_input2", multi=False, style={"fontSize":"24px"})
+                html.Label("METRIC 2 (Y)", style={"fontSize":18, "fontWeight":"bold"}),
+                dcc.Dropdown(stock_symbols_list, "AMD-Advanced Micro Devices", id="scatter&line_input2", multi=False, style={"fontSize":"16px"})
             ], xs=12, md=3),
             dbc.Col([
-                html.Label("PERIOD", style={"fontSize":24, "fontWeight":"bold"}),
-                dcc.Dropdown(period, "5Y",id="period2_drop",multi=False, style={"fontSize":"24px"})
+                html.Label("PERIOD", style={"fontSize":18, "fontWeight":"bold"}),
+                dcc.Dropdown(period, "5Y",id="period2_drop",multi=False, style={"fontSize":"16px"})
             ], xs=6, md=3),
             dbc.Col([
-                html.Label("INTERVAL", style={"fontSize":24, "fontWeight":"bold"}),
-                dcc.Dropdown(interval, "D",id="interval2_drop",multi=False, style={"fontSize":"24px"})
+                html.Label("INTERVAL", style={"fontSize":18, "fontWeight":"bold"}),
+                dcc.Dropdown(interval, "D",id="interval2_drop",multi=False, style={"fontSize":"16px"})
             ], xs=6, md=3)
         ], className="mb-4"),
         
         dbc.Row([
             dbc.Col([
-                html.Label("FEATURE TO LAG", style={"fontSize":25, "fontWeight":"bold", "color":"#fa709a"}),
+                html.Label("FEATURE TO LAG", style={"fontSize":18, "fontWeight":"bold", "color":"#fa709a"}),
                 dcc.Dropdown(
                     id="lag_feature_selector2", 
                     multi=False, 
                     placeholder="Select indicators to shift...",
-                    style={"fontSize":"24px"}
+                    style={"fontSize":"16px"}
                 ),
-                html.Label("LAG DEPTH (MONTHS)", style={"fontSize":25, "fontWeight":"bold", "color":"#fa709a", "marginTop":"10px"}),
+                html.Label("LAG DEPTH (MONTHS)", style={"fontSize":18, "fontWeight":"bold", "color":"#fa709a", "marginTop":"10px"}),
                 dcc.Slider(
                     id="lag_slider2",
                     min=0, max=12, step=1, value=0,
-                    marks={i: {'label': str(i), 'style': {'color': 'white'}} for i in range(0, 13)}
+                    marks={i: {'label': str(i), 'style': {'color': 'white'}} for i in range(0, 13)},
+                    tooltip={"always_visible": True, "placement": "bottom"}   
                 )
             ], xs=12, md=8),
             dbc.Col([
-                html.Label("ROLLING WINDOW", style={"fontSize":24, "fontWeight":"bold", "color":"#fee140"}),
-                dbc.Input(id="rolling_win", value=30, type="number", style={"fontSize":"24px", "backgroundColor":"#2a2a2c", "color":"white"})
+                html.Label("ROLLING WINDOW", style={"fontSize":18, "fontWeight":"bold", "color":"#fee140"}),
+                dbc.Input(id="rolling_win", value=30, type="number", style={"fontSize":"16px", "backgroundColor":"#2a2a2c", "color":"white"})
             ], xs=12, md=4)
         ])
     ]), style={"boxShadow": "0 8px 16px 0 rgba(0,0,0,0.7)", "borderRadius": "15px", "backgroundColor": "#1a1a1c", "border": "1px solid #444", "padding":"15px"},
@@ -343,7 +423,7 @@ def data_recovery_call(macros, period1, interval1, lag_features, lag_value):
             zmax=1                           # Locks the maximum value to 1
         )
         # ADD THIS LINE: Target the text inside the cells
-        macro_heat.update_traces(textfont=dict(size=25))
+        macro_heat.update_traces(textfont_size=25)
 
         # Update layout for a cleaner, modern look
         macro_heat.update_layout(
@@ -366,7 +446,8 @@ def data_recovery_call(macros, period1, interval1, lag_features, lag_value):
                 tickfont=dict(size=12)
             ),
             hoverlabel=dict(
-                font=dict(size=18, family="Inter"),
+                font_size=16,
+                font_family="Inter",
                 bgcolor="rgba(26, 26, 28, 0.9)"
             )
         )
@@ -432,14 +513,15 @@ def scatter_line(metric1, metric2, period2, interval2, lag_features2, lag_value2
     scatter.update_layout(
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        xaxis={'title':{'text':f"<b>{metric1}<b>", 'font':{"size":18, "color":"#fa709a"}}, 'gridcolor':'#333'}, 
-        yaxis={'title':{'text':f"<b>{metric2}<b>", 'font':{"size":18, "color":"#fa709a"}}, 'gridcolor':'#333'},
+        xaxis={'title':{'text':f"<b>{metric1}<b>", 'font':{"size":16, "color":"#fa709a"}}, 'gridcolor':'#333'}, 
+        yaxis={'title':{'text':f"<b>{metric2}<b>", 'font':{"size":16, "color":"#fa709a"}}, 'gridcolor':'#333'},
         font=dict(family="Inter, sans-serif", size=14, color="#e0e0e0"),
         hoverlabel=dict(
-            font=dict(size=18, family="Inter"),
+            font_size=16,
+            font_family="Inter",
             bgcolor="rgba(26, 26, 28, 0.9)"
         ))
-    scatter.update_traces(marker=dict(size=12, color='#fa709a', opacity=0.7, line=dict(width=1, color='white')))
+    scatter.update_traces(marker=dict(size=10, color='#fa709a', opacity=0.7, line=dict(width=1, color='white')))
     
         # --- THE SAFETY VALVE ---
     # If the user clears the input box, default it back to 30 to prevent a crash.
@@ -466,11 +548,12 @@ def scatter_line(metric1, metric2, period2, interval2, lag_features2, lag_value2
     rolling_cor_fig.update_layout(
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        xaxis={"title":{"text":"Date", "font":{"size":18, "color":"#fee140"}}, 'gridcolor':'#333'},
-        yaxis={"title":{"text":"Correlation Coefficient", "font":{"size":18, "color":"#fee140"}}, 'gridcolor':'#333', 'range':[-1.1, 1.1]},
-        font=dict(family="Inter, sans-serif", size=16, color="#e0e0e0"),
+        xaxis={"title":{"text":"Date", "font":{"size":16, "color":"#fee140"}}, 'gridcolor':'#333'},
+        yaxis={"title":{"text":"Correlation Coefficient", "font":{"size":16, "color":"#fee140"}}, 'gridcolor':'#333', 'range':[-1.1, 1.1]},
+        font=dict(family="Inter, sans-serif", size=14, color="#e0e0e0"),
         hoverlabel=dict(
-            font=dict(size=18, family="Inter"),
+            font_size=16,
+            font_family="Inter",
             bgcolor="rgba(26, 26, 28, 0.9)"
             ),
         hovermode="x unified"
@@ -514,17 +597,18 @@ def scatter_line(metric1, metric2, period2, interval2, lag_features2, lag_value2
         plot_bgcolor='rgba(0,0,0,0)',
         title=f"<b>RAW VALUE COMPARISON: {metric1} VS {metric2}</b>",
         template="cyborg",
-        font=dict(family="Inter, sans-serif", size=16, color="#e0e0e0"),
+        font=dict(family="Inter, sans-serif", size=14, color="#e0e0e0"),
         hovermode="x unified",
         legend=dict(
             orientation="h",
             yanchor="bottom", y=-0.4, 
             xanchor="center", x=0.5,
-            font=dict(size=16)
+            font=dict(size=12)
         ),
         hoverlabel=dict(
             bgcolor="rgba(26, 26, 28, 0.9)",
-            font=dict(size=14, family="Inter")
+            font_size=16,
+            font_family="Inter"
         )
     )
 
@@ -594,9 +678,3 @@ def update_lag_dropdown_consolidated(metric1, metric2):
     # Filter out None and return options
     selected_metrics = [m for m in [metric1, metric2] if m]
     return [{"label": x, "value": x} for x in selected_metrics]
-
-
-#if __name__ == "__main__":
-#    app.run(jupyter_mode="external",debug=True)
-
-

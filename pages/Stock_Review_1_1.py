@@ -22,8 +22,7 @@ if parent_dir not in sys.path:
 from app_functions import make_plot
 from app_functions import price_card_info
 from app_functions import make_card
-from sqlalchemy import create_engine
-from sqlalchemy import text
+from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 # This finds the directory one level up from where this notebook is located
 parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
@@ -144,12 +143,13 @@ markets = [ '^GSPC-SP500','^DJI-DowJones','^IXIC-NasDaq']
 symbols_removed_from_query = energy + metals + ag + markets
 symbols_removed_query_preped = "'" + ("','").join(symbols_removed_from_query) + "'"
 
-###==========================================================Symbols ist import==============================================================###
+###==========================================================Symbols list import==============================================================###
 try:
-    stock_symbols = pd.read_sql(f"""SELECT DISTINCT "COMPANY" 
+    with engine.connect() as conn:
+        stock_symbols = pd.read_sql(text(f"""SELECT DISTINCT "COMPANY" 
                                         FROM "HISTORICAL_STOCK_PRICES"
-                                        WHERE "COMPANY" NOT IN ({symbols_removed_query_preped})""", 
-                                con=engine)
+                                        WHERE "COMPANY" NOT IN ({symbols_removed_query_preped})"""), 
+                                con=conn)
     symbols = stock_symbols["COMPANY"].tolist()
 except Exception as e:
     symbols = ['MMM-3M','AOS-A. O. Smith','ABT-Abbott Laboratories',
@@ -325,8 +325,9 @@ layout = dbc.Container([
 )
 def trend_chart(ticker: str, period: str, intervals: str):
     news_query_conversion = ticker.split("-")[0]
-    articles_df = pd.read_sql(f'SELECT * FROM "STOCK_NEWS_TABLE" WHERE "COMPANY" = \'{news_query_conversion}\'', con=engine)
-    articles_df.drop(columns=["index"], inplace=True)
+    with engine.connect() as conn:
+        articles_df = pd.read_sql(text(f"""SELECT * FROM "STOCK_NEWS_TABLE" WHERE "COMPANY" = '{news_query_conversion}'"""), con=conn)
+    #articles_df.drop(columns=["index"], inplace=True)
     articles_df["PUBDATE"] = pd.to_datetime(articles_df["PUBDATE"]).dt.date 
     articles_df.sort_values(by="PUBDATE",ascending=False, inplace=True)
     articles_df = articles_df.iloc[:-15,:]
@@ -502,11 +503,12 @@ def trend_chart(ticker: str, period: str, intervals: str):
 
 ###=============================================FUNDAMENTALS BREAKDOWN==============================================###
     company = ticker.split("-")[0]
-    fundamentals = pd.read_sql(f"""SELECT * FROM "FUNDAMENTAL_DATA" WHERE "index" = '{company}'""", con=engine).rename(columns={"index":"Company"})
-    fundamentals.columns = fundamentals.columns.str.upper()
-    sector = fundamentals["SECTOR"][0]
-    sector_fundamentals = pd.read_sql(f"""SELECT * FROM "FUNDAMENTAL_DATA" WHERE "sector" = '{sector}'""", con=engine).rename(columns={"index":"Company"})
-    sector_fundamentals.columns = sector_fundamentals.columns.str.upper()
+    with engine.connect() as conn:
+        fundamentals = pd.read_sql(text(f"""SELECT * FROM "FUNDAMENTAL_DATA" WHERE "index" = '{company}'"""), con=conn).rename(columns={"index":"Company"})
+        fundamentals.columns = fundamentals.columns.str.upper()
+        sector = fundamentals["SECTOR"][0]
+        sector_fundamentals = pd.read_sql(text(f"""SELECT * FROM "FUNDAMENTAL_DATA" WHERE "sector" = '{sector}'"""), con=conn).rename(columns={"index":"Company"})
+        sector_fundamentals.columns = sector_fundamentals.columns.str.upper()
     ###Business Summary text###
     company_summary_text = fundamentals["LONGBUSINESSSUMMARY"]
 
@@ -565,59 +567,3 @@ def trend_chart(ticker: str, period: str, intervals: str):
     financial_strength_table = dash_table_create(table_create_function(financial_strength_cols, "Financial Strength"))
 
     return news_table, trend_fig, rsi_fig, macd_fig, company_summary_display, risk_table, profitability_table, financial_strength_table
-
-# %%
-##Running the application
-if __name__ == "__main__":
-    app.run(jupyter_mode='external',debug=True)
-
-# %% [markdown]
-# #    fundamentals = pd.read_sql("""SELECT * FROM FUNDAMENTAL_DATA WHERE "index" = 'MMM'""", con=engine)#.rename(columns={"index":"Company"})
-# #fundamentals.columns = fundamentals.columns.str.upper()
-# #help(pd.DataFrame.set_index)
-# ticker = symbols[0].split("-")[0]
-#     fundamentals = pd.read_sql(f"""SELECT * FROM FUNDAMENTAL_DATA WHERE "index" = '{ticker}'""", con=engine).rename(columns={"index":"Company"})
-#     fundamentals.columns = fundamentals.columns.str.upper()
-#     sector = fundamentals["SECTOR"][0]
-#     sector_fundamentals = pd.read_sql(f"""SELECT * FROM FUNDAMENTAL_DATA WHERE sector = '{sector}'""", con=engine).rename(columns={"index":"Company"})
-#     sector_fundamentals.columns = sector_fundamentals.columns.str.upper()
-# 
-# risk_analysis = fundamentals.loc[:,(fundamentals.columns.str.contains("RISK") | fundamentals.columns.str.contains("BETA"))].T
-# risk_analysis.reset_index(inplace=True)
-# risk_analysis.rename(columns={"index":"RISK ASSESMENT TYPE", 0:"RISK SCORE"}, inplace=True)
-# 
-# sector_risk_analysis = sector_fundamentals.loc[:,(sector_fundamentals.columns.str.contains("RISK") | sector_fundamentals.columns.str.contains("BETA"))].T
-# sector_risk_analysis["INDUSTRY AVERAGE SCORES"] = (sector_risk_analysis.mean(axis=1)).round(2)
-# sector_risk_analysis.reset_index(inplace=True)
-# sector_risk_analysis.rename(columns={"index":"RISK ASSESMENT TYPE"}, inplace=True)
-# sector_risk_summary = sector_risk_analysis[["RISK ASSESMENT TYPE","INDUSTRY AVERAGE SCORES"]]
-# 
-# risk_analysis = risk_analysis.merge(sector_risk_summary, how="inner", on="RISK ASSESMENT TYPE")
-# 
-# profitability_columns = [
-#                             'PROFITMARGINS', 'GROSSMARGINS', 'EBITDAMARGINS', 'OPERATINGMARGINS', 
-#                             'RETURNONASSETS', 'RETURNONEQUITY', 'EBITDA', 'GROSSPROFITS'
-#                             ]
-#                             
-# profitability_performance = fundamentals.loc[:,profitability_columns].T
-# profitability_performance.reset_index(inplace=True)
-# profitability_performance.dropna(axis=0,inplace=True)
-# profitability_performance.rename(columns={"index":"Profitability Metric", 0:"Value"}, inplace=True)
-# #profitability_table = dash_table_create(profitability_performance)
-# 
-# sector_fund = sector_fundamentals.loc[:,profitability_columns].round(2).T
-# #sector_fund.dropna(axis=0, inplace=True)
-# sector_fund.rename(columns={"index":"Profitability Metric"}, inplace=True)
-# sector_avg = sector_fund.mean(1)
-# sector_avg.name = "Industry Average"
-# sector_avg = sector_avg.to_frame()
-# sector_avg.reset_index(inplace=True)
-# sector_avg.rename(columns={"index":"Profitability Metric"}, inplace=True)
-# 
-# profitability_table = profitability_performance.merge(sector_avg, on="Profitability Metric", how="left")
-# 
-# profitability_table['Industry Average'] = profitability_table['Industry Average'].map("{:,.2f}".format)
-# profitability_table["Value"] = profitability_table["Value"].map("{:,.2f}".format)
-# profitability_table
-
-
