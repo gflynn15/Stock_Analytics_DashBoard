@@ -274,8 +274,7 @@ layout = dbc.Container([
                 dcc.Slider(
                     id="lag_slider",
                     min=0, max=12, step=1, value=0,
-                    marks={i: {'label': str(i), 'style': {'color': 'white'}} for i in range(0, 13)},
-                    tooltip={"always_visible": True, "placement": "bottom"}
+                    marks={i: {'label': str(i), 'style': {'color': 'white'}} for i in range(0, 13)}
                 )
             ], xs=12, lg=6)
         ])
@@ -326,8 +325,7 @@ layout = dbc.Container([
                 dcc.Slider(
                     id="lag_slider2",
                     min=0, max=12, step=1, value=0,
-                    marks={i: {'label': str(i), 'style': {'color': 'white'}} for i in range(0, 13)},
-                    tooltip={"always_visible": True, "placement": "bottom"}   
+                    marks={i: {'label': str(i), 'style': {'color': 'white'}} for i in range(0, 13)}   
                 )
             ], xs=12, md=8),
             dbc.Col([
