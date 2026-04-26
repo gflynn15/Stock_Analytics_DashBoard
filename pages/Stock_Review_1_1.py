@@ -147,9 +147,9 @@ symbols_removed_query_preped = "'" + ("','").join(symbols_removed_from_query) + 
 ###==========================================================Symbols ist import==============================================================###
 try:
     with engine.connect() as conn:
-        stock_symbols = pd.read_sql(text(f"""SELECT DISTINCT "COMPANY" 
+        stock_symbols = pd.read_sql(f"""SELECT DISTINCT "COMPANY" 
                                             FROM "HISTORICAL_STOCK_PRICES"
-                                            WHERE "COMPANY" NOT IN ({symbols_removed_query_preped})"""), 
+                                            WHERE "COMPANY" NOT IN ({symbols_removed_query_preped})""", 
                                     con=conn)
         symbols = stock_symbols["COMPANY"].tolist()
 except Exception as e:
@@ -327,7 +327,7 @@ layout = dbc.Container([
 def trend_chart(ticker: str, period: str, intervals: str):
     news_query_conversion = ticker.split("-")[0]
     with engine.connect() as conn:
-        articles_df = pd.read_sql(text(f'SELECT * FROM "STOCK_NEWS_TABLE" WHERE "COMPANY" = "{news_query_conversion}"'), con=conn)
+        articles_df = pd.read_sql(f'SELECT * FROM "STOCK_NEWS_TABLE" WHERE "COMPANY" = "{news_query_conversion}"', con=conn)
     articles_df.drop(columns=["index"], inplace=True)
     articles_df["PUBDATE"] = pd.to_datetime(articles_df["PUBDATE"]).dt.date 
     articles_df.sort_values(by="PUBDATE",ascending=False, inplace=True)
@@ -505,10 +505,10 @@ def trend_chart(ticker: str, period: str, intervals: str):
 ###=============================================FUNDAMENTALS BREAKDOWN==============================================###
     company = ticker.split("-")[0]
     with engine.connect() as conn:
-        fundamentals = pd.read_sql(text(f"""SELECT * FROM "FUNDAMENTAL_DATA" WHERE "index" = '{company}'"""), con=conn).rename(columns={"index":"Company"})
+        fundamentals = pd.read_sql(f"""SELECT * FROM "FUNDAMENTAL_DATA" WHERE "index" = '{company}'""", con=conn).rename(columns={"index":"Company"})
         fundamentals.columns = fundamentals.columns.str.upper()
         sector = fundamentals["SECTOR"][0]
-        sector_fundamentals = pd.read_sql(text(f"""SELECT * FROM "FUNDAMENTAL_DATA" WHERE "sector" = '{sector}'"""), con=conn).rename(columns={"index":"Company"})
+        sector_fundamentals = pd.read_sql(f"""SELECT * FROM "FUNDAMENTAL_DATA" WHERE "sector" = '{sector}'""", con=conn).rename(columns={"index":"Company"})
         sector_fundamentals.columns = sector_fundamentals.columns.str.upper()
     ###Business Summary text###
     company_summary_text = fundamentals["LONGBUSINESSSUMMARY"]
@@ -576,15 +576,15 @@ if __name__ == "__main__":
 
 # %% [markdown]
 # #with engine.connect() as conn:
-# #    fundamentals = pd.read_sql(text("""SELECT * FROM FUNDAMENTAL_DATA WHERE "index" = 'MMM'"""), con=conn)#.rename(columns={"index":"Company"})
+# #    fundamentals = pd.read_sql("""SELECT * FROM FUNDAMENTAL_DATA WHERE "index" = 'MMM'""", con=conn)#.rename(columns={"index":"Company"})
 # #fundamentals.columns = fundamentals.columns.str.upper()
 # #help(pd.DataFrame.set_index)
 # ticker = symbols[0].split("-")[0]
 # with engine.connect() as conn:
-#     fundamentals = pd.read_sql(text(f"""SELECT * FROM FUNDAMENTAL_DATA WHERE "index" = '{ticker}'"""), con=conn).rename(columns={"index":"Company"})
+#     fundamentals = pd.read_sql(f"""SELECT * FROM FUNDAMENTAL_DATA WHERE "index" = '{ticker}'""", con=conn).rename(columns={"index":"Company"})
 #     fundamentals.columns = fundamentals.columns.str.upper()
 #     sector = fundamentals["SECTOR"][0]
-#     sector_fundamentals = pd.read_sql(text(f"""SELECT * FROM FUNDAMENTAL_DATA WHERE sector = '{sector}'"""), con=conn).rename(columns={"index":"Company"})
+#     sector_fundamentals = pd.read_sql(f"""SELECT * FROM FUNDAMENTAL_DATA WHERE sector = '{sector}'""", con=conn).rename(columns={"index":"Company"})
 #     sector_fundamentals.columns = sector_fundamentals.columns.str.upper()
 # 
 # risk_analysis = fundamentals.loc[:,(fundamentals.columns.str.contains("RISK") | fundamentals.columns.str.contains("BETA"))].T

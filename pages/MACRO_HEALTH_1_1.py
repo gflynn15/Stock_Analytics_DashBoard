@@ -47,9 +47,9 @@ render_url = os.getenv("render_db_url")
 engine = create_engine(render_url)
 
 with engine.connect() as conn:
-    stock_symbols = pd.read_sql(text('SELECT DISTINCT "COMPANY" FROM "HISTORICAL_STOCK_PRICES"'), con=conn)
+    stock_symbols = pd.read_sql('SELECT DISTINCT "COMPANY" FROM "HISTORICAL_STOCK_PRICES"', con=conn)
     stock_symbols_list = stock_symbols["COMPANY"].tolist()
-    macros_symbols = pd.read_sql(text('SELECT DISTINCT "LEADING_INDICATOR" FROM "MACRO_INDICATOR_VALUES"'), con=conn)
+    macros_symbols = pd.read_sql('SELECT DISTINCT "LEADING_INDICATOR" FROM "MACRO_INDICATOR_VALUES"', con=conn)
     macros_symbols_list = macros_symbols["LEADING_INDICATOR"].tolist()
 
 stock_symbols_list.extend(macros_symbols_list)

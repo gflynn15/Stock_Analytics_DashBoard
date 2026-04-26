@@ -77,7 +77,7 @@ period = ["W","M","3M","1Y", "2Y","3Y","5Y","YTD","MAX"]
 interval = ["D", "W", "M", "Q", "Y"]
 
 with engine.connect() as conn:
-    stock_symbols = pd.read_sql(text('SELECT DISTINCT "COMPANY" FROM "HISTORICAL_STOCK_PRICES"'), con=conn)
+    stock_symbols = pd.read_sql('SELECT DISTINCT "COMPANY" FROM "HISTORICAL_STOCK_PRICES"', con=conn)
     stock_symbols_list = stock_symbols["COMPANY"].tolist()
 
 # %% [markdown]
@@ -116,7 +116,7 @@ ag = ["ZC=F-Corn","ZW=F-Wheat","KC=F-Coffee","LE=F-LiveCattle","HE=F-LeanHogs","
 
 # %%
 with engine.connect() as conn:
-    articles_df = pd.read_sql(text("""SELECT * FROM "STOCK_NEWS_TABLE" WHERE "COMPANY" IN ('^GSPC','^DJI','^IXIC')"""), con=conn)
+    articles_df = pd.read_sql("""SELECT * FROM "STOCK_NEWS_TABLE" WHERE "COMPANY" IN ('^GSPC','^DJI','^IXIC')""", con=conn)
 articles_df.drop(columns=["index"], inplace=True)
 articles_df["PUBDATE"] = pd.to_datetime(articles_df["PUBDATE"]).dt.date
 articles_df.sort_values(by="PUBDATE",ascending=False, inplace=True)
