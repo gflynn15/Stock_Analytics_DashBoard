@@ -60,14 +60,14 @@ def make_card(change_header, change, price_header, price):
             dbc.Row([
                 # Left Side: Percent Change
                 dbc.Col([
-                    html.H6(change_header, style={"fontSize": "14px", "opacity": "0.6", "textTransform": "uppercase"}),
-                    html.H2(f"{change:.2%}", style={"color": status_color, "fontWeight": "900", "fontSize": "30px"})
+                    html.H6(change_header, style={"fontSize": "11px", "opacity": "0.5", "textTransform": "uppercase", "letterSpacing": "1px", "marginBottom": "4px"}),
+                    html.H2(f"{change:.2%}", style={"color": status_color, "fontWeight": "900", "fontSize": "24px"})
                 ], width=6, style={"borderRight": "1px solid rgba(255,255,255,0.1)"}),
                 
                 # Right Side: Price
                 dbc.Col([
-                    html.H6(price_header, style={"fontSize": "14px", "opacity": "0.6", "textTransform": "uppercase"}),
-                    html.H2(f"${price:,.2f}", style={"color": "white", "fontWeight": "900", "fontSize": "30px"})
+                    html.H6(price_header, style={"fontSize": "11px", "opacity": "0.5", "textTransform": "uppercase", "letterSpacing": "1px", "marginBottom": "4px"}),
+                    html.H2(f"${price:,.2f}", style={"color": "white", "fontWeight": "900", "fontSize": "24px"})
                 ], width=6)
             ])
         ])
@@ -95,40 +95,40 @@ def make_plot(df, ticker, title_text):
     )
     
     fig.update_layout(
-        title={"font":{"size":20, "family": "Inter", "color": "white"}},
+        title={"font":{"size":16, "family": "Inter", "color": "white"}},
         title_x=0.5,
         xaxis=dict(
             title="DATE",
-            title_font=dict(size=16, family="Inter", color="rgba(255,255,255,0.6)"),
-            tickfont=dict(size=12, color="rgba(255,255,255,0.8)"),
+            title_font=dict(size=13, family="Inter", color="rgba(255,255,255,0.5)"),
+            tickfont=dict(size=12, family="Inter", color="rgba(255,255,255,0.7)"),
             gridcolor="rgba(255,255,255,0.05)"
             ),
         yaxis=dict(
             title="PRICE",
-            title_font=dict(size=16, family="Inter", color="rgba(255,255,255,0.6)"),
-            tickfont=dict(size=12, color="rgba(255,255,255,0.8)"),
+            title_font=dict(size=13, family="Inter", color="rgba(255,255,255,0.5)"),
+            tickfont=dict(size=12, family="Inter", color="rgba(255,255,255,0.7)"),
             gridcolor="rgba(255,255,255,0.05)"
             ), 
         legend_title_text="",
         legend=dict(
             orientation="h",
             yanchor="bottom",
-            y=-0.3,
+            y=-0.25,
             xanchor="center",
             x=0.5,
-            font=dict(size=10, color="white"),
+            font=dict(size=12, family="Inter", color="white"),
             bgcolor="rgba(0,0,0,0)"
         ),
         hovermode="x unified",
         hoverlabel=dict(
-            font_size=10, 
+            font_size=13, 
             font_family="Inter",
             bgcolor="rgba(30, 30, 30, 0.9)",
             bordercolor="rgba(255,255,255,0.1)"
         ),
-        paper_bgcolor="rgba(0,0,0,0)", # Transparent background for glass look
+        paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        margin=dict(l=40, r=40, t=80, b=80)
+        margin=dict(l=50, r=20, t=60, b=70)
     )
     
     fig.update_xaxes(
@@ -139,7 +139,7 @@ def make_plot(df, ticker, title_text):
     fig.update_yaxes(showgrid=True)
     
     # Modern smooth lines
-    fig.update_traces(line=dict(width=3), hovertemplate="%{y:,.2f}")
+    fig.update_traces(line=dict(width=2.5), hovertemplate="%{y:,.2f}")
     
     return fig
 

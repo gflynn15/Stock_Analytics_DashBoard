@@ -1,3 +1,17 @@
+/* ============================================= */
+/*  DESIGN SYSTEM — Robinhood-Inspired Fintech   */
+/* ============================================= */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
+
+/* ---- Global Reset ---- */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---- Dropdown Styling ---- */
 /* Color of the text in the main box */
 .Select-value-label,
 .Select-placeholder {
@@ -7,7 +21,6 @@
 /* Color of the individual tags in a multi-select dropdown */
 .Select-value {
     background-color: #971d1d !important;
-    /* Matches your box color */
     color: white !important;
     border: 1px solid #ffffff !important;
 }
@@ -27,134 +40,140 @@
     background-color: #555 !important;
 }
 
-/* 1. DEFAULT BASE (Mobile First View) */
-/* Targets the text under the slider marks */
-.rc-slider-mark-text {
-    font-size: 10px !important;
-    /* Small enough to fit 25 numbers on a phone */
+/* ---- Reusable Component Classes ---- */
+/* Clean section label for dropdown headers */
+.section-label {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5) !important;
+    margin-bottom: 4px;
+    font-family: 'Inter', sans-serif;
 }
 
-/* 2. DESKTOP OVERRIDE (Monitors and large tablets) */
+/* Uniform chart card wrapper */
+.chart-card {
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.6);
+    border-radius: 12px;
+    background-color: #1a1a1c;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 16px;
+}
+
+/* ---- Slider Marks (Responsive) ---- */
+/* Mobile-first */
+.rc-slider-mark-text {
+    font-size: 10px !important;
+}
+
+/* Desktop override */
 @media screen and (min-width: 768px) {
     .rc-slider-mark-text {
-        font-size: 20px !important;
-        /* Scales back up for big screens */
+        font-size: 16px !important;
     }
 }
 
+/* ============================================= */
+/*  PAGE BANNER HEADERS                          */
+/* ============================================= */
 
-/* Picture headers for the Market Pulse Page */
-/* Styling utilized for the market news header logo on the market pulse page */
+/* Market Pulse — News banner */
 .market-news-header {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('MARKET_PULSE_NEWS_HEADER.png');
+    background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('MARKET_PULSE_NEWS_HEADER.png');
     background-size: cover;
     background-position: center bottom;
     background-repeat: no-repeat;
-    padding: 30px 0px 20px 0px;
-    min-height: 300px;
+    padding: 30px 0 20px 0;
+    min-height: 220px;
     color: white;
-    /* Ensures any text inside defaults to white */
+    border-radius: 12px;
+    margin-bottom: 16px;
 }
 
-/* Styling utilized for the comodities header logo on the market pulse page */
+/* Market Pulse — Metals banner */
 .commodities-header {
     background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('COMMODITIES_HEADER_IMAGE.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    padding: 30px 0px 20px 0px;
-    min-height: 300px;
+    padding: 30px 0 20px 0;
+    min-height: 220px;
     color: white;
-    /* Ensures any text inside defaults to white */
+    border-radius: 12px;
+    margin-bottom: 16px;
 }
 
-/* Styling utilized for the comodities header logo on the market pulse page */
+/* Market Pulse — Energy banner */
 .energy-header {
     background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('ENERGY_HEADER_IMAGE.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    padding: 30px 0px 20px 0px;
-    min-height: 300px;
+    padding: 30px 0 20px 0;
+    min-height: 220px;
     color: white;
-    /* Ensures any text inside defaults to white */
+    border-radius: 12px;
+    margin-bottom: 16px;
 }
 
-/* Styling utilized for the comodities header logo on the market pulse page */
+/* Market Pulse — Agriculture banner */
 .agg-header {
     background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('AGG_HEADER_IMAGE.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    padding: 30px 0px 20px 0px;
-    min-height: 300px;
+    padding: 30px 0 20px 0;
+    min-height: 220px;
     color: white;
-    /* Ensures any text inside defaults to white */
+    border-radius: 12px;
+    margin-bottom: 16px;
 }
 
-/* Styling Utilized for the company overview headers*/
-/* Company overview header */
+/* Stock Review — Company Overview banner */
 .company-overview-header {
     background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('Company_Overview_Header.jpg');
-    background-size: 100%;
+    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    padding: 30px 0px 20px 0px;
-    min-height: 400px;
+    padding: 30px 0 20px 0;
+    min-height: 220px;
     color: white;
-    /* Ensures any text inside defaults to white */
+    border-radius: 12px;
 }
 
+/* Stock Review — Fundamentals banner */
 .fundamentals-header {
     background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('Fundamentals_Analysis_Header.jpg');
-    background-size: 100%;
+    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    padding: 30px 0px 20px 0px;
-    min-height: 300px;
+    padding: 30px 0 20px 0;
+    min-height: 220px;
     color: white;
-    /* Ensures any text inside defaults to white */
+    border-radius: 12px;
 }
-/* Picture headers for the Macro Health Page */
+
+/* Macro Health — Main banner */
 .macro-health-header {
     background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('Macro_Health_Banner_Header.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    padding: 30px 0px 170px 0px; 
-    min-height: 400px;
+    padding: 30px 0 100px 0;
+    min-height: 280px;
     color: white;
+    border-radius: 12px;
 }
 
-/* Picture header for the Learning Hub */
+/* Learning Hub — Banner */
 .learning-hub-header {
     background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('Learning_Hub_Header.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    padding: 30px 0px 20px 0px;
-    min-height: 400px;
+    padding: 30px 0 20px 0;
+    min-height: 220px;
     color: white;
-}
-
-/* Picture headers for the Macro Health Page */
-.macro-health-header {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('Macro_Health_Banner_Header.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    padding: 30px 0px 170px 0px; 
-    min-height: 400px;
-    color: white;
-}
-
-/* Picture header for the Learning Hub */
-.learning-hub-header {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('Learning_Hub_Header.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    padding: 30px 0px 20px 0px;
-    min-height: 400px;
-    color: white;
+    border-radius: 12px;
 }
