@@ -118,7 +118,7 @@ with engine.connect() as conn:
     #articles_df.drop(columns=["index"], inplace=True)
     articles_df["PUBDATE"] = pd.to_datetime(articles_df["PUBDATE"]).dt.date
     articles_df.sort_values(by="PUBDATE",ascending=False, inplace=True)
-    articles_df = articles_df.iloc[:-15,:]
+    articles_df = articles_df.iloc[:15,:]
 
 ##Creating the dash table
 market_news = dash_table.DataTable(
