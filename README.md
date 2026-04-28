@@ -57,7 +57,7 @@ I help operations-heavy businesses (Logistics, Manufacturing, Finance) turn mess
 * Data trapped in different software that won't talk to each other.
 * A lack of real-time visibility into your KPIs.
 
-**[Contact Me via LinkedIn](www.linkedin.com/in/gabriel-flynn-12b872158)** or **[View My Portfolio]()** to discuss how we can build a custom version of this architecture for your business.
+**[Contact Me via LinkedIn](https://www.linkedin.com/in/gabriel-flynn-12b872158/)** or **[View My Portfolio]()** to discuss how we can build a custom version of this architecture for your business.
 
 ---
 *Disclaimer: This application is a technical proof-of-concept and does not constitute financial advice.*
