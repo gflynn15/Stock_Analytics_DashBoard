@@ -141,7 +141,7 @@ market_news = dash_table.DataTable(
             "whiteSpace": "normal",
             "color":"white",
             "backgroundColor": "#585859",
-            "fontSize":25,
+            "fontSize":12,
             "fontFamily":"Inter"
         },
         style_header={
@@ -149,7 +149,7 @@ market_news = dash_table.DataTable(
             "color": "black",
             "fontWeight": "bold",
             "textAlign": "center",
-            "fontSize":30
+            "fontSize":13
         },
     )
 
@@ -183,7 +183,7 @@ layout = dbc.Container([
                 'background': '-webkit-linear-gradient(45deg, #FF416C, #FF4B2B)',
                 '-webkit-background-clip': 'text',
                 '-webkit-text-fill-color': 'transparent',
-                'fontSize': '5rem',
+                'fontSize': '2.25rem',
                 'paddingBottom': '20px',
                 'paddingTop': '20px'
             }),
@@ -194,12 +194,12 @@ layout = dbc.Container([
     ## Global Filters
     dbc.Row([
         dbc.Col([
-            html.Label(html.B("Select Period:"), style={"fontSize":35}),
-            dcc.Dropdown(period, "5Y", id="index_period", clearable=False, style={"fontSize":25})
+            html.Label(html.B("Select Period:"), style={"fontSize":14}),
+            dcc.Dropdown(period, "5Y", id="index_period", clearable=False, style={"fontSize":14})
         ], xs=6, md=3, lg=2),
         dbc.Col([
-            html.Label(html.B("Select Interval"), style={"fontSize":35}),
-            dcc.Dropdown(interval, "D", id="index_interval", clearable=False, style={"fontSize":25})
+            html.Label(html.B("Select Interval"), style={"fontSize":14}),
+            dcc.Dropdown(interval, "D", id="index_interval", clearable=False, style={"fontSize":14})
         ], xs=6, md=3, lg=2),
     ], className="mb-4 g-3"), # g-3 adds "gutter" spacing between columns
 
@@ -247,28 +247,28 @@ layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.Label(html.B("Select Period")),
-            dcc.Dropdown(period, "5Y", id="commodity_period_m", clearable=False, style={"fontSize":25})
+            dcc.Dropdown(period, "5Y", id="commodity_period_m", clearable=False, style={"fontSize":14})
         ], xs=6, md=2),
         dbc.Col([
             html.Label(html.B("Select Interval")),
-            dcc.Dropdown(interval, "D", id="commodity_interval_m", clearable=False, style={"fontSize":25})
+            dcc.Dropdown(interval, "D", id="commodity_interval_m", clearable=False, style={"fontSize":14})
         ], xs=6, md=2),
     ], className="mb-3 g-3"),
     
     dbc.Row([
         dbc.Col([
             html.Label(html.B("Select Metal")),
-            dcc.Dropdown(metals, "SI=F-Silver", id="metal_1", clearable=False, style={"fontSize":25}),
+            dcc.Dropdown(metals, "SI=F-Silver", id="metal_1", clearable=False, style={"fontSize":14}),
             html.Div(id="metal_1_price")
         ], xs=12, md=4),
         dbc.Col([
             html.Label(html.B("Select Metal")),
-            dcc.Dropdown(metals, "GC=F-Gold", id="metal_2", clearable=False, style={"fontSize":25}),
+            dcc.Dropdown(metals, "GC=F-Gold", id="metal_2", clearable=False, style={"fontSize":14}),
             html.Div(id="metal_2_price")
         ], xs=12, md=4),
         dbc.Col([
             html.Label(html.B("Select Metal")),
-            dcc.Dropdown(metals, "PL=F-Platinum", id="metal_3", clearable=False, style={"fontSize":25}),
+            dcc.Dropdown(metals, "PL=F-Platinum", id="metal_3", clearable=False, style={"fontSize":14}),
             html.Div(id="metal_3_price")
         ], xs=12, md=4)
     ], className="g-3"),
@@ -295,11 +295,11 @@ layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.Label(html.B("Select Period")),
-            dcc.Dropdown(period, "5Y", id="commodity_period_e", clearable=False, style={"fontSize":25})
+            dcc.Dropdown(period, "5Y", id="commodity_period_e", clearable=False, style={"fontSize":14})
         ], xs=6, md=3, lg=2),
         dbc.Col([
             html.Label(html.B("Select Interval")),
-            dcc.Dropdown(interval, "D", id="commodity_interval_e", clearable=False, style={"fontSize":25})
+            dcc.Dropdown(interval, "D", id="commodity_interval_e", clearable=False, style={"fontSize":14})
         ], xs=6, md=3, lg=2),
     ], className="mb-3 g-3"),
     
@@ -308,17 +308,17 @@ layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.Label(html.B("Select Energy")),
-            dcc.Dropdown(energy, "CL=F-CrudeOil", id="energy_1", clearable=False, style={"fontSize":25}),
+            dcc.Dropdown(energy, "CL=F-CrudeOil", id="energy_1", clearable=False, style={"fontSize":14}),
             dcc.Loading(html.Div(id="energy_1_price"), type="circle")
         ], xs=12, md=4),
         dbc.Col([
             html.Label(html.B("Select Energy")),
-            dcc.Dropdown(energy, "NG=F-NaturalGas", id="energy_2", clearable=False, style={"fontSize":25}),
+            dcc.Dropdown(energy, "NG=F-NaturalGas", id="energy_2", clearable=False, style={"fontSize":14}),
             dcc.Loading(html.Div(id="energy_2_price"), type="circle")
         ], xs=12, md=4),
         dbc.Col([
             html.Label(html.B("Select Energy")),
-            dcc.Dropdown(energy, "HO=F-HeatingOil", id="energy_3", clearable=False, style={"fontSize":25}),
+            dcc.Dropdown(energy, "HO=F-HeatingOil", id="energy_3", clearable=False, style={"fontSize":14}),
             dcc.Loading(html.Div(id="energy_3_price"), type="circle")
         ], xs=12, md=4)
     ], className="g-3"),
@@ -348,11 +348,11 @@ layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.Label(html.B("Select Period")),
-            dcc.Dropdown(period, "5Y", id="commodity_period_a", clearable=False, style={"fontSize":25})
+            dcc.Dropdown(period, "5Y", id="commodity_period_a", clearable=False, style={"fontSize":14})
         ], xs=6, md=3, lg=2),
         dbc.Col([
             html.Label(html.B("Select Interval")),
-            dcc.Dropdown(interval, "D", id="commodity_interval_a", clearable=False, style={"fontSize":25})
+            dcc.Dropdown(interval, "D", id="commodity_interval_a", clearable=False, style={"fontSize":14})
         ], xs=6, md=3, lg=2),
     ], className="mb-3 g-3"),
     
@@ -360,17 +360,17 @@ layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.Label(html.B("Select Agriculture Commodity")),
-            dcc.Dropdown(ag, "ZC=F-Corn", id="ag_1", clearable=False, style={"fontSize":25}),
+            dcc.Dropdown(ag, "ZC=F-Corn", id="ag_1", clearable=False, style={"fontSize":14}),
             dcc.Loading(html.Div(id="ag_1_price"), type="circle")
         ], xs=12, md=4),
         dbc.Col([
             html.Label(html.B("Select Agriculture Commodity")),
-            dcc.Dropdown(ag, "ZW=F-Wheat", id="ag_2", clearable=False, style={"fontSize":25}),
+            dcc.Dropdown(ag, "ZW=F-Wheat", id="ag_2", clearable=False, style={"fontSize":14}),
             dcc.Loading(html.Div(id="ag_2_price"), type="circle")
         ], xs=12, md=4),
         dbc.Col([
             html.Label(html.B("Select Agriculture Commodity")),
-            dcc.Dropdown(ag, "LE=F-LiveCattle", id="ag_3", clearable=False, style={"fontSize":25}),
+            dcc.Dropdown(ag, "LE=F-LiveCattle", id="ag_3", clearable=False, style={"fontSize":14}),
             dcc.Loading(html.Div(id="ag_3_price"), type="circle")
         ], xs=12, md=4)
     ], className="g-3"),

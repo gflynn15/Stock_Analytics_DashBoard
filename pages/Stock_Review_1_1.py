@@ -61,7 +61,7 @@ def dash_table_create(df):
     """
     if df is None or df.empty:
         return html.Div("No data available for this selection.", 
-                        style={'color': 'white', 'fontSize': 20, 'textAlign': 'center', 'padding': '20px'})
+                        style={'color': 'white', 'fontSize': 14, 'textAlign': 'center', 'padding': '20px'})
     # --- DYNAMIC COLUMN ALIGNMENT LOGIC ---
     num_cols = len(df.columns)
     
@@ -108,7 +108,7 @@ def dash_table_create(df):
             "color": "#e0e0e0",
             "backgroundColor": "#1a1a1c",
             "border": "1px solid #333",
-            "fontSize": 22,
+            "fontSize": 12,
             "fontFamily": "Inter",
             "height":"auto"
         },
@@ -117,7 +117,7 @@ def dash_table_create(df):
             "color": "white",
             "fontWeight": "bold",
             "textAlign": "center",
-            "fontSize": 26,
+            "fontSize": 13,
             "border": "none"
         },
     )
@@ -194,31 +194,31 @@ layout = dbc.Container([
             dbc.Accordion([
                 dbc.AccordionItem([
                             html.P(id="company-summary", className="animate__animated animate__fadeIn",
-                            style={"fontSize":20, "textAlign":"center"})], 
-                            title=html.Span("Click to Review the Company Summary", style={"fontSize":35}))],
+                            style={"fontSize":14, "textAlign":"center"})], 
+                            title=html.Span("Click to Review the Company Summary", style={"fontSize":16}))],
                     start_collapsed=True)], 
                     width=12)], className="mb-4"),
     html.Br(),
     ###=======================================Drop Down Menu Row============================================###
     dbc.Row([
         dbc.Col([
-            html.Label('Select Stock', style={"fontSize":35}),
-            dcc.Dropdown(symbols, symbols[0], id='stock_symbols', clearable=False, style={"fontSize":25}),
+            html.Label('Select Stock', style={"fontSize":14}),
+            dcc.Dropdown(symbols, symbols[0], id='stock_symbols', clearable=False, style={"fontSize":14}),
         ], xs=12, md=4, lg=2),
         dbc.Col([
-            html.Label('Select Period', style={"fontSize":35}),
-            dcc.Dropdown(period, '1Y', id='period', clearable=False, style={"fontSize":25})
+            html.Label('Select Period', style={"fontSize":14}),
+            dcc.Dropdown(period, '1Y', id='period', clearable=False, style={"fontSize":14})
         ], xs=12, md=4, lg=2),
         dbc.Col([
-            html.Label('Select Interval', style={"fontSize":35}),
-            dcc.Dropdown(intervals, 'D', id='intervals', clearable=False, style={"fontSize":25})
+            html.Label('Select Interval', style={"fontSize":14}),
+            dcc.Dropdown(intervals, 'D', id='intervals', clearable=False, style={"fontSize":14})
         ], xs=12, md=4, lg=2)      
     ], className='mb-4'),
 
     ####===================================Price Trend Charts=================================###
     dbc.Row(dbc.Card(dbc.CardBody([
         dbc.Row([
-            html.H3("📈 Pricing Trend", style={'textAlign': 'left', 'color': '#00f2fe', "fontSize":35})  
+            html.H3("📈 Pricing Trend", style={'textAlign': 'left', 'color': '#00f2fe', "fontSize":18})  
         ]),
         dbc.Row([dcc.Loading(
                 id="loading-trend",
@@ -356,7 +356,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
                 "color":"#e0e0e0",
                 "backgroundColor": "#1a1a1c",
                 "border": "1px solid #333",
-                "fontSize":14,
+                "fontSize":12,
                 "fontFamily":"Inter"
             },
             style_header={
@@ -364,7 +364,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
                 "color": "white",
                 "fontWeight": "bold",
                 "textAlign": "center",
-                "fontSize":20,
+                "fontSize":13,
                 "border": "none"
             },
         )
@@ -399,17 +399,17 @@ def trend_chart(ticker: str, period: str, intervals: str):
         title={"text":f"<b>{ticker}-RSI<b>", 
                 #"x":.5, 
                 "y":.95, 
-                "font": dict(color="#fa709a",size=18,family='Inter')
+                "font": dict(color="#fa709a",size=15,family='Inter')
         },
         xaxis=dict(
                 title="DATE",
-                title_font=dict(size=16),
-                tickfont=dict(size=14)
+                title_font=dict(size=12),
+                tickfont=dict(size=11)
                 ), 
         yaxis=dict(
                 title="PRICE",
-                title_font=dict(size=16),
-                tickfont=dict(size=14),
+                title_font=dict(size=12),
+                tickfont=dict(size=11),
                 range=[0, 100]
                 ),
         legend=dict(
@@ -418,7 +418,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
             y=-.20,
             xanchor="center",
             x=0.5,
-            font=dict(size=18)
+            font=dict(size=11)
                     ),
         shapes=[
             dict(type="line", yref="y", y0=70, y1=70, xref="x", x0=df.index[0], x1=df.index[-1]),
@@ -448,13 +448,13 @@ def trend_chart(ticker: str, period: str, intervals: str):
                 "font": dict(color="#fee140")}, 
         xaxis=dict(
                 title="DATE",
-                title_font=dict(size=16),
-                tickfont=dict(size=14)
+                title_font=dict(size=12),
+                tickfont=dict(size=11)
                 ), 
         yaxis=dict(
                 title="MACD",
-                title_font=dict(size=16),
-                tickfont=dict(size=14)
+                title_font=dict(size=12),
+                tickfont=dict(size=11)
                 ),
         legend=dict(
             orientation="h",
@@ -462,7 +462,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
             y=-.35,
             xanchor="center",
             x=0.5,
-            font=dict(size=14)
+            font=dict(size=11)
                     )
                         )
 
@@ -477,19 +477,19 @@ def trend_chart(ticker: str, period: str, intervals: str):
         font=dict(color='#e0e0e0'),
         title={"text":f"<b>{ticker}-Closing Price Trend<b>", 
                 "font":{'color':"#00f2fe",
-                        'size':20,
+                        'size':15,
                         'family': 'Inter'
                         }
                 }, 
                 xaxis=dict(
                     title="DATE",
-                    title_font=dict(size=25),
-                    tickfont=dict(size=18)
+                    title_font=dict(size=12),
+                    tickfont=dict(size=11)
                 ), 
                 yaxis=dict(
                     title="PRICE",
-                    title_font=dict(size=25),
-                    tickfont=dict(size=18)
+                    title_font=dict(size=12),
+                    tickfont=dict(size=11)
                 ),
         legend=dict(
             orientation="h",
@@ -497,7 +497,7 @@ def trend_chart(ticker: str, period: str, intervals: str):
             y=-.20,
             xanchor="center",
             x=0.5,
-            font=dict(size=18)
+            font=dict(size=11)
                     ),
                         )
 

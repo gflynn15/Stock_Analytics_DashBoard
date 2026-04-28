@@ -207,7 +207,7 @@ layout = dbc.Container([
                 'background': '-webkit-linear-gradient(45deg, #00f2fe, #4facfe)',
                 '-webkit-background-clip': 'text',
                 '-webkit-text-fill-color': 'transparent',
-                'fontSize': '6rem',
+                'fontSize': '2.25rem',
                 'letterSpacing': '5px'
             }),
             html.H3("MARKET INTELLIGENCE COMMAND", style={
@@ -231,7 +231,7 @@ layout = dbc.Container([
                 "Analyze macroeconomic trends and discover how key financial metrics drive broad market performance.",
                 html.Br(),
                 "Use the tools below to quantify the mathematical lead/lag relationships between economic indicators."
-            ], style={"textAlign": "center", "fontSize":"24px", "fontFamily": "Inter", "color": "#e0e0e0"})
+            ], style={"textAlign": "center", "fontSize":"14px", "fontFamily": "Inter", "color": "#e0e0e0"})
         ], width=10, className="mx-auto mb-4")
     ], className="animate__animated animate__fadeIn animate__delay-1s"),
     html.Br(),
@@ -239,38 +239,38 @@ layout = dbc.Container([
     dbc.Card(dbc.CardBody([
         dbc.Row([
             dbc.Col([
-                html.Label("INDICATOR SELECTION", style={"fontSize":20, "fontWeight":"bold", "color":"#00f2fe"}),
+                html.Label("INDICATOR SELECTION", style={"fontSize":14, "fontWeight":"bold", "color":"#00f2fe"}),
                 dcc.Dropdown(stock_symbols_list, 
                          ["^GSPC-SP500","INDUSTRIAL PRODUCTION","M2 MONEY SUPPLY"], 
                          id="metrics_list", multi=True, optionHeight=50,
-                         style={"fontSize":"18px"})
+                         style={"fontSize":"14px"})
             ], xs=12, lg=6),
             
             dbc.Col([
-                html.Label("TIMEFRAME", style={"fontSize":20, "fontWeight":"bold", "color":"#00f2fe"}),
-                dcc.Dropdown(period,"5Y",id="period1_drop",multi=False, style={"fontSize":"18px"})
+                html.Label("TIMEFRAME", style={"fontSize":14, "fontWeight":"bold", "color":"#00f2fe"}),
+                dcc.Dropdown(period,"5Y",id="period1_drop",multi=False, style={"fontSize":"14px"})
             ], xs=6, lg=3),
             
             dbc.Col([
-                html.Label("INTERVAL", style={"fontSize":20, "fontWeight":"bold", "color":"#00f2fe"}),
-                dcc.Dropdown(interval, "D",id="interval1_drop",multi=False, style={"fontSize":"18px"})
+                html.Label("INTERVAL", style={"fontSize":14, "fontWeight":"bold", "color":"#00f2fe"}),
+                dcc.Dropdown(interval, "D",id="interval1_drop",multi=False, style={"fontSize":"14px"})
             ], xs=6, lg=3) 
         ], className="mb-4"),
         
         ###Lag Feature Implementation for the heat map###
         dbc.Row([
             dbc.Col([
-                html.Label("FEATURES TO LAG", style={"fontSize":20, "fontWeight":"bold", "color":"#fa709a"}),
+                html.Label("FEATURES TO LAG", style={"fontSize":14, "fontWeight":"bold", "color":"#fa709a"}),
                 dcc.Dropdown(
                     id="lag_feature_selector", 
                     multi=True, 
                     placeholder="Select indicators to shift...",
-                    style={"fontSize":"18px"}
+                    style={"fontSize":"14px"}
                 )
             ], xs=12, lg=6),
         
             dbc.Col([
-                html.Label("LAG DEPTH (MONTHS)", style={"fontSize":20, "fontWeight":"bold", "color":"#fa709a"}),
+                html.Label("LAG DEPTH (MONTHS)", style={"fontSize":14, "fontWeight":"bold", "color":"#fa709a"}),
                 dcc.Slider(
                     id="lag_slider",
                     min=0, max=12, step=1, value=0,
@@ -295,33 +295,33 @@ layout = dbc.Container([
         dbc.Row([
             dbc.Col([html.H3("🛠️ REGRESSION CONTROLS", style={'textAlign': 'center', 'color': '#00f2fe', "fontWeight":"bold", "marginBottom":"20px"})], width=12),
             dbc.Col([
-                html.Label("METRIC 1 (X)", style={"fontSize":18, "fontWeight":"bold"}),
-                dcc.Dropdown(stock_symbols_list, "^GSPC-SP500", id="scatter&line_input1", multi=False, style={"fontSize":"16px"})
+                html.Label("METRIC 1 (X)", style={"fontSize":14, "fontWeight":"bold"}),
+                dcc.Dropdown(stock_symbols_list, "^GSPC-SP500", id="scatter&line_input1", multi=False, style={"fontSize":"14px"})
             ], xs=12, md=3), 
             dbc.Col([
-                html.Label("METRIC 2 (Y)", style={"fontSize":18, "fontWeight":"bold"}),
-                dcc.Dropdown(stock_symbols_list, "AMD-Advanced Micro Devices", id="scatter&line_input2", multi=False, style={"fontSize":"16px"})
+                html.Label("METRIC 2 (Y)", style={"fontSize":14, "fontWeight":"bold"}),
+                dcc.Dropdown(stock_symbols_list, "AMD-Advanced Micro Devices", id="scatter&line_input2", multi=False, style={"fontSize":"14px"})
             ], xs=12, md=3),
             dbc.Col([
-                html.Label("PERIOD", style={"fontSize":18, "fontWeight":"bold"}),
-                dcc.Dropdown(period, "5Y",id="period2_drop",multi=False, style={"fontSize":"16px"})
+                html.Label("PERIOD", style={"fontSize":14, "fontWeight":"bold"}),
+                dcc.Dropdown(period, "5Y",id="period2_drop",multi=False, style={"fontSize":"14px"})
             ], xs=6, md=3),
             dbc.Col([
-                html.Label("INTERVAL", style={"fontSize":18, "fontWeight":"bold"}),
-                dcc.Dropdown(interval, "D",id="interval2_drop",multi=False, style={"fontSize":"16px"})
+                html.Label("INTERVAL", style={"fontSize":14, "fontWeight":"bold"}),
+                dcc.Dropdown(interval, "D",id="interval2_drop",multi=False, style={"fontSize":"14px"})
             ], xs=6, md=3)
         ], className="mb-4"),
         
         dbc.Row([
             dbc.Col([
-                html.Label("FEATURE TO LAG", style={"fontSize":18, "fontWeight":"bold", "color":"#fa709a"}),
+                html.Label("FEATURE TO LAG", style={"fontSize":14, "fontWeight":"bold", "color":"#fa709a"}),
                 dcc.Dropdown(
                     id="lag_feature_selector2", 
                     multi=False, 
                     placeholder="Select indicators to shift...",
-                    style={"fontSize":"16px"}
+                    style={"fontSize":"14px"}
                 ),
-                html.Label("LAG DEPTH (MONTHS)", style={"fontSize":18, "fontWeight":"bold", "color":"#fa709a", "marginTop":"10px"}),
+                html.Label("LAG DEPTH (MONTHS)", style={"fontSize":14, "fontWeight":"bold", "color":"#fa709a", "marginTop":"10px"}),
                 dcc.Slider(
                     id="lag_slider2",
                     min=0, max=12, step=1, value=0,
@@ -329,8 +329,8 @@ layout = dbc.Container([
                 )
             ], xs=12, md=8),
             dbc.Col([
-                html.Label("ROLLING WINDOW", style={"fontSize":18, "fontWeight":"bold", "color":"#fee140"}),
-                dbc.Input(id="rolling_win", value=30, type="number", style={"fontSize":"16px", "backgroundColor":"#2a2a2c", "color":"white"})
+                html.Label("ROLLING WINDOW", style={"fontSize":14, "fontWeight":"bold", "color":"#fee140"}),
+                dbc.Input(id="rolling_win", value=30, type="number", style={"fontSize":"14px", "backgroundColor":"#2a2a2c", "color":"white"})
             ], xs=12, md=4)
         ])
     ]), style={"boxShadow": "0 8px 16px 0 rgba(0,0,0,0.7)", "borderRadius": "15px", "backgroundColor": "#1a1a1c", "border": "1px solid #444", "padding":"15px"},
@@ -421,7 +421,7 @@ def data_recovery_call(macros, period1, interval1, lag_features, lag_value):
             zmax=1                           # Locks the maximum value to 1
         )
         # ADD THIS LINE: Target the text inside the cells
-        macro_heat.update_traces(textfont_size=25)
+        macro_heat.update_traces(textfont_size=12)
 
         # Update layout for a cleaner, modern look
         macro_heat.update_layout(
@@ -433,7 +433,7 @@ def data_recovery_call(macros, period1, interval1, lag_features, lag_value):
                 "y": 0.95,
                 "xanchor": "center",
                 "yanchor": "top",
-                "font": {"size": 24, "family": "Inter", "color": "#00f2fe"}
+                "font": {"size": 15, "family": "Inter", "color": "#00f2fe"}
             },
             font=dict(family="Inter, sans-serif", size=14, color="#e0e0e0"),
             margin=dict(l=50, r=50, t=80, b=50),
@@ -642,18 +642,18 @@ def scatter_line(metric1, metric2, period2, interval2, lag_features2, lag_value2
         # Build the UI Cards using Bootstrap
         regression_ui = [
             dbc.Col(dbc.Card([
-                dbc.CardHeader("R-SQUARED (ACCURACY)", className="text-center", style={"fontWeight": "900", "fontSize": "18px", "color": "#00d2ff"}),
-                dbc.CardBody(html.H2(f"{r_squared}", className="text-center", style={"color": "white", "fontWeight": "900"}))
+                dbc.CardHeader("R-SQUARED (ACCURACY)", className="text-center", style={"fontWeight": "900", "fontSize": "13px", "color": "#00d2ff"}),
+                dbc.CardBody(html.H2(f"{r_squared}", className="text-center", style={"color": "white", "fontWeight": "900", "fontSize": "20px"}))
             ], style={"backgroundColor": "rgba(26, 26, 28, 0.6)", "borderRadius": "15px", "border": "1px solid #444", "boxShadow": "0 4px 15px rgba(0,0,0,0.5)"}), xs=12, md=4),
             
             dbc.Col(dbc.Card([
-                dbc.CardHeader(f"BETA (SENSITIVITY)", className="text-center", style={"fontWeight": "900", "fontSize": "18px", "color": "#fee140"}),
-                dbc.CardBody(html.H2(f"{beta}", className="text-center", style={"color": "white", "fontWeight": "900"}))
+                dbc.CardHeader(f"BETA (SENSITIVITY)", className="text-center", style={"fontWeight": "900", "fontSize": "13px", "color": "#fee140"}),
+                dbc.CardBody(html.H2(f"{beta}", className="text-center", style={"color": "white", "fontWeight": "900", "fontSize": "20px"}))
             ], style={"backgroundColor": "rgba(26, 26, 28, 0.6)", "borderRadius": "15px", "border": "1px solid #444", "boxShadow": "0 4px 15px rgba(0,0,0,0.5)"}), xs=12, md=4),
             
             dbc.Col(dbc.Card([
-                dbc.CardHeader("P-VALUE (SIGNIFICANCE)", className="text-center", style={"fontWeight": "900", "fontSize": "18px", "color": "#fa709a"}),
-                dbc.CardBody(html.H2(p_text, className="text-center", style={"color": p_color, "fontWeight": "900"}))
+                dbc.CardHeader("P-VALUE (SIGNIFICANCE)", className="text-center", style={"fontWeight": "900", "fontSize": "13px", "color": "#fa709a"}),
+                dbc.CardBody(html.H2(p_text, className="text-center", style={"color": p_color, "fontWeight": "900", "fontSize": "20px"}))
             ], style={"backgroundColor": "rgba(26, 26, 28, 0.6)", "borderRadius": "15px", "border": "1px solid #444", "boxShadow": "0 4px 15px rgba(0,0,0,0.5)"}), xs=12, md=4),
         ]
     else:
