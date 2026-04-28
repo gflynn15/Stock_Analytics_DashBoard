@@ -2,11 +2,17 @@
 ### A High-Performance Data Pipeline & Interactive Intelligence Engine
 
 **[View Live Application](https://stock-analytics-dashboard-j4bx.onrender.com/)** | **[Book a Strategy Call](gabeflynn15@gmail.com)**
-
 ---
 
 ## 🚀 The Mission: Operational Visibility at Speed
 In modern operations, the biggest "waste" isn't on the shop floor—it's in the data. Decisions are often delayed by manual spreadsheet updates, disparate APIs, and stale reporting. 
+
+<img width="1847" height="910" alt="image" src="https://github.com/user-attachments/assets/7980b0fa-991a-4b1a-962e-6fc36283306e" />
+<img width="1846" height="867" alt="image" src="https://github.com/user-attachments/assets/10209417-4d60-409a-b28d-52b6df314b4f" />
+<img width="1860" height="683" alt="image" src="https://github.com/user-attachments/assets/84c3c0b9-8cc6-4d40-8d41-77fbe12010bd" />
+<img width="1873" height="377" alt="image" src="https://github.com/user-attachments/assets/a7c2a9d1-d6bc-4655-9802-8734784d367d" />
+
+
 
 **SOAR** is a full-stack technical blueprint designed to solve the **"Data Velocity Problem."** While this instance tracks macroeconomic indicators and asset performance, the architecture is designed to monitor any complex, high-stakes system—from warehouse throughput and supply chain disruptions to real-time financial risk.
 
