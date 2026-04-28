@@ -146,7 +146,7 @@ market_news = dash_table.DataTable(
         },
         style_header={
             "backgroundColor": "eb4904d4",
-            "color": "white",
+            "color": "black",
             "fontWeight": "bold",
             "textAlign": "center",
             "fontSize":30
