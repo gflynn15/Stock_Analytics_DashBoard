@@ -195,7 +195,7 @@ layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.Label(html.B("Select Period:"), style={"fontSize":14}),
-            dcc.Dropdown(period, "5Y", id="index_period", clearable=False, style={"fontSize":14})
+            dcc.Dropdown(period, "5YE", id="index_period", clearable=False, style={"fontSize":14})
         ], xs=6, md=3, lg=2),
         dbc.Col([
             html.Label(html.B("Select Interval"), style={"fontSize":14}),
@@ -247,7 +247,7 @@ layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.Label(html.B("Select Period")),
-            dcc.Dropdown(period, "5Y", id="commodity_period_m", clearable=False, style={"fontSize":14})
+            dcc.Dropdown(period, "5YE", id="commodity_period_m", clearable=False, style={"fontSize":14})
         ], xs=6, md=2),
         dbc.Col([
             html.Label(html.B("Select Interval")),
@@ -295,7 +295,7 @@ layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.Label(html.B("Select Period")),
-            dcc.Dropdown(period, "5Y", id="commodity_period_e", clearable=False, style={"fontSize":14})
+            dcc.Dropdown(period, "5YE", id="commodity_period_e", clearable=False, style={"fontSize":14})
         ], xs=6, md=3, lg=2),
         dbc.Col([
             html.Label(html.B("Select Interval")),
@@ -348,7 +348,7 @@ layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.Label(html.B("Select Period")),
-            dcc.Dropdown(period, "5Y", id="commodity_period_a", clearable=False, style={"fontSize":14})
+            dcc.Dropdown(period, "5YE", id="commodity_period_a", clearable=False, style={"fontSize":14})
         ], xs=6, md=3, lg=2),
         dbc.Col([
             html.Label(html.B("Select Interval")),

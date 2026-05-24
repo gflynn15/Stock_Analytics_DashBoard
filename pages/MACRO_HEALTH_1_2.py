@@ -259,12 +259,12 @@ layout = dbc.Container([
             
             dbc.Col([
                 html.Label("TIMEFRAME", style={"fontSize":14, "fontWeight":"bold", "color":"#00f2fe"}),
-                dcc.Dropdown(period,"5Y",id="period1_drop",multi=False, style={"fontSize":"14px"})
+                dcc.Dropdown(period,"5YE",id="period1_drop",multi=False, style={"fontSize":"14px"})
             ], xs=6, lg=3),
             
             dbc.Col([
                 html.Label("INTERVAL", style={"fontSize":14, "fontWeight":"bold", "color":"#00f2fe"}),
-                dcc.Dropdown(interval, "D",id="interval1_drop",multi=False, style={"fontSize":"14px"})
+                dcc.Dropdown(interval, "M",id="interval1_drop",multi=False, style={"fontSize":"14px"})
             ], xs=6, lg=3) 
         ], className="mb-4"),
         
