@@ -71,7 +71,7 @@ engine = create_engine(render_url)
 
 # %%
         ###Drop downs allowing the data to be filtered by period and interval settings in the drop down menus###
-period = ["W","M","3M","1Y", "2Y","3Y","5Y","YTD","MAX"]
+period = ["W","ME","3ME","1YE", "2YE","3YE", "5YE","YTD","MAX"]
 interval = ["D", "W", "M", "Q", "Y"]
 
 with engine.connect() as conn:

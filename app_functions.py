@@ -159,18 +159,18 @@ def data_query(metrics_list, period, interval):
             latest_date = summary_revised.index.max()
         if period == "W":
             start_date = latest_date - pd.DateOffset(weeks=1)
-        elif period == "M":
+        elif period == "ME":
             start_date = latest_date - pd.DateOffset(months=1)
-        elif period == "3M":
-            start_date = latest_date - pd.DateOffset(months=7)
-        elif period == "1Y":
+        elif period == "3ME":
+            start_date = latest_date - pd.DateOffset(months=3)
+        elif period == "1YE":
+            start_date = latest_date - pd.DateOffset(years=1)
+        elif period == "2YE":
             start_date = latest_date - pd.DateOffset(years=2)
-        elif period == "2Y":
+        elif period == "3YE":
             start_date = latest_date - pd.DateOffset(years=3)
-        elif period == "3Y":
-            start_date = latest_date - pd.DateOffset(years=4)
-        elif period == "5Y":
-            start_date = latest_date - pd.DateOffset(years=6)
+        elif period == "5YE":
+            start_date = latest_date - pd.DateOffset(years=5)
         elif period == "YTD":
             start_date = pd.to_datetime(f"{latest_date.year}-01-01")
         elif period == "MAX":
@@ -178,22 +178,35 @@ def data_query(metrics_list, period, interval):
         else:
             start_date = summary_revised.index.min()
         summary_revised_filtered = summary_revised[summary_revised.index >= start_date]
-            ###resampling the data based on the interval selected by the user###
+    ### resampling the data based on the interval selected by the user ###
         if interval == "D":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("D").last()
+            resampler = summary_revised_filtered.resample("D")
         elif interval == "W":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("W").last()
+            resampler = summary_revised_filtered.resample("W")
         elif interval == "M":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("M").last()
+            # Change M to ME (Month End)
+            resampler = summary_revised_filtered.resample("ME")
         elif interval == "Q":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("Q").last()
+            # Change Q to QE (Quarter End)
+            resampler = summary_revised_filtered.resample("QE")
         elif interval == "Y":
-            summary_revised_filtered_resampled = summary_revised_filtered.resample("Y").last()
+            # Change Y to YE (Year End)
+            resampler = summary_revised_filtered.resample("YE")
         else:
-            summary_revised_filtered_resampled = summary_revised_filtered
+            # If no interval, return the filtered data directly
+            return summary_revised_filtered.round(2)
+            
+        summary_revised_filtered_resampled = resampler.last()
+        
+        # --- Defensive Check ---
+        if summary_revised_filtered_resampled.empty:
+            return pd.DataFrame() 
+        # -----------------------
+
         summary_revised_filtered_resampled.dropna(axis=0, inplace=True)
         summary_final = summary_revised_filtered_resampled.round(2)
         return summary_final
+
     except Exception as e:
         print(f"Failed to Load {e}")
     
