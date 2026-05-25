@@ -608,13 +608,11 @@ def store_stock_review_selections(ticker, period, intervals, stored_data):
     #prevent_initial_call=True
 )
 def restore_stock_review_selections(stored_data, current_ticker, current_period, current_intervals):
-    if not stored_data or not isinstance(stored_data, dict):
-        return [no_update] * 3
+    if not stored_data or "sr_ticker" not in stored_data:
+        return (no_update, no_update, no_update)
     
     def get_update_val(stored_key, current_val):
-        if stored_key not in stored_data:
-            return no_update
-        val = stored_data[stored_key]
+        val = stored_data.get(stored_key)
         if val == current_val:
             return no_update
         return val

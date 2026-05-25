@@ -735,7 +735,7 @@ def store_macro_health_selections(metrics1, p1, i1, lag_f1, lag_v1, scat1, scat2
     return data
 
 # ==========================================
-# CALLBACK 2: RESTORE SELECTIONS
+# CALLBACK 2: RESTORE SELECTIONS (FIXED)
 # ==========================================
 @callback(
     [
@@ -766,25 +766,26 @@ def store_macro_health_selections(metrics1, p1, i1, lag_f1, lag_v1, scat1, scat2
         State("lag_feature_selector2", "value"),
         State("lag_slider2", "value"),
         State("rolling_win", "value")
-    ],
-    #prevent_initial_call=True
+    ]
 )
 def restore_macro_health_selections(stored_data, current_metrics1, current_p1, current_i1, current_lag_f1, current_lag_v1,
                                     current_scat1, current_scat2, current_p2, current_i2, current_lag_f2, current_lag_v2, current_roll_win):
-    # If the user just loaded the app, do nothing and let the layout defaults load
-    if not stored_data or not isinstance(stored_data, dict):
-        return [no_update] * 12 # This is a clean way to return 12 no_updates
     
-    # Helper to only update changed values and ignore missing keys to avoid overwriting layout defaults
+    # 1. FIX: Check if THIS specific page's data exists yet. 
+    # If it doesn't, return a strict Tuple of 12 no_updates so layout defaults are preserved.
+    if not stored_data or 'mh_metrics1' not in stored_data:
+        return (no_update, no_update, no_update, no_update, no_update, no_update,
+                no_update, no_update, no_update, no_update, no_update, no_update)
+    
+    # 2. Helper to safely pull saved values without overwriting layout defaults blindly
     def get_update_val(stored_key, current_val):
-        if stored_key not in stored_data:
-            return no_update
-        val = stored_data[stored_key]
+        val = stored_data.get(stored_key)
+        # If the stored value matches the current value, do nothing (prevents infinite loops)
         if val == current_val:
             return no_update
         return val
 
-    # Return the values in the EXACT order the Outputs are listed above
+    # 3. Return the exact 1-to-1 tuple
     return (
         get_update_val('mh_metrics1', current_metrics1),
         get_update_val('mh_p1', current_p1),

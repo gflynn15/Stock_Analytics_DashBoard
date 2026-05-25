@@ -650,13 +650,13 @@ def store_market_pulse_selections(idx_p, idx_i, c_p_m, c_i_m, m1, m2, m3, c_p_e,
 )
 def restore_market_pulse_selections(stored_data, cur_idx_p, cur_idx_i, cur_c_p_m, cur_c_i_m, cur_m1, cur_m2, cur_m3,
                                     cur_c_p_e, cur_c_i_e, cur_e1, cur_e2, cur_e3, cur_c_p_a, cur_c_i_a, cur_a1, cur_a2, cur_a3):
-    if not stored_data or not isinstance(stored_data, dict):
-        return [no_update] * 17
+    if not stored_data or "mp_index_period" not in stored_data:
+        return (no_update, no_update, no_update, no_update, no_update, no_update,
+                no_update, no_update, no_update, no_update, no_update, no_update,
+                no_update, no_update, no_update, no_update, no_update)
     
     def get_update_val(stored_key, current_val):
-        if stored_key not in stored_data:
-            return no_update
-        val = stored_data[stored_key]
+        val = stored_data.get(stored_key)
         if val == current_val:
             return no_update
         return val
