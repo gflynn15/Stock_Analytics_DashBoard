@@ -3,7 +3,7 @@ from flask import Flask
 from flask_caching import Cache
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
-
+from dash import Input, Output, callback, ctx
 # Optional safety measure for interactive environments (Jupyter/VS Code Interactive)
 # This clears the global registry so running the script multiple times doesn't cause Duplicate Callback errors
 import dash._callback

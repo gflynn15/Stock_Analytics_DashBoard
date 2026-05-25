@@ -3,7 +3,7 @@
 from app_init import cache
 import numpy as np
 import dash
-from dash import Dash, html, dcc, callback, Output, Input, dash_table
+from dash import Dash, html, dcc, callback, Output, Input, dash_table, State, no_update
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 import plotly.express as px
@@ -567,3 +567,60 @@ def trend_chart(ticker: str, period: str, intervals: str):
     financial_strength_table = dash_table_create(table_create_function(financial_strength_cols, "Financial Strength"))
 
     return news_table, trend_fig, rsi_fig, macd_fig, company_summary_display, risk_table, profitability_table, financial_strength_table
+
+# ==========================================
+# CALLBACK 1: STORE SELECTIONS
+# ==========================================
+@callback(
+    Output('session-store', 'data', allow_duplicate=True),
+    [
+        Input("stock_symbols", "value"),
+        Input("period", "value"),
+        Input("intervals", "value")
+    ],
+    State('session-store', 'data'),
+    prevent_initial_call=True
+)
+def store_stock_review_selections(ticker, period, intervals, stored_data):
+    data = stored_data or {}
+    data.update({
+        'sr_ticker': ticker,
+        'sr_period': period,
+        'sr_intervals': intervals
+    })
+    return data
+
+# ==========================================
+# CALLBACK 2: RESTORE SELECTIONS
+# ==========================================
+@callback(
+    [
+        Output("stock_symbols", "value"),
+        Output("period", "value"),
+        Output("intervals", "value")
+    ],
+    Input('session-store', 'data'),
+    [
+        State("stock_symbols", "value"),
+        State("period", "value"),
+        State("intervals", "value")
+    ],
+    prevent_initial_call=True
+)
+def restore_stock_review_selections(stored_data, current_ticker, current_period, current_intervals):
+    if not stored_data or not isinstance(stored_data, dict):
+        return [no_update] * 3
+    
+    def get_update_val(stored_key, current_val):
+        if stored_key not in stored_data:
+            return no_update
+        val = stored_data[stored_key]
+        if val == current_val:
+            return no_update
+        return val
+
+    return (
+        get_update_val('sr_ticker', current_ticker),
+        get_update_val('sr_period', current_period),
+        get_update_val('sr_intervals', current_intervals)
+    )

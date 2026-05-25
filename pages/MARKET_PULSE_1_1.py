@@ -12,7 +12,7 @@
 from app_init import cache
 import numpy as np
 import dash
-from dash import Dash, html, dcc, callback, Output, Input, dash_table
+from dash import Dash, html, dcc, callback, Output, Input, dash_table, State, no_update
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 import plotly.express as px
@@ -552,5 +552,133 @@ def ag_trend_charts(period, interval, ag_1, ag_2, ag_3):
     ag_3_fig = make_plot(ag_closing_nona,ag_3, f"{ag_3.split('-')[0]} Price Trend")
     
     return ag_cards[ag_1], ag_cards[ag_2], ag_cards[ag_3],ag_1_fig, ag_2_fig, ag_3_fig
+
+# ==========================================
+# CALLBACK 1: STORE SELECTIONS
+# ==========================================
+@callback(
+    Output('session-store', 'data', allow_duplicate=True),
+    [
+        Input("index_period", "value"),
+        Input("index_interval", "value"),
+        Input("commodity_period_m", "value"),
+        Input("commodity_interval_m", "value"),
+        Input("metal_1", "value"),
+        Input("metal_2", "value"),
+        Input("metal_3", "value"),
+        Input("commodity_period_e", "value"),
+        Input("commodity_interval_e", "value"),
+        Input("energy_1", "value"),
+        Input("energy_2", "value"),
+        Input("energy_3", "value"),
+        Input("commodity_period_a", "value"),
+        Input("commodity_interval_a", "value"),
+        Input("ag_1", "value"),
+        Input("ag_2", "value"),
+        Input("ag_3", "value")
+    ],
+    State('session-store', 'data'),
+    prevent_initial_call=True
+)
+def store_market_pulse_selections(idx_p, idx_i, c_p_m, c_i_m, m1, m2, m3, c_p_e, c_i_e, e1, e2, e3, c_p_a, c_i_a, a1, a2, a3, stored_data):
+    data = stored_data or {}
+    data.update({
+        'mp_index_period': idx_p,
+        'mp_index_interval': idx_i,
+        'mp_commodity_period_m': c_p_m,
+        'mp_commodity_interval_m': c_i_m,
+        'mp_metal_1': m1,
+        'mp_metal_2': m2,
+        'mp_metal_3': m3,
+        'mp_commodity_period_e': c_p_e,
+        'mp_commodity_interval_e': c_i_e,
+        'mp_energy_1': e1,
+        'mp_energy_2': e2,
+        'mp_energy_3': e3,
+        'mp_commodity_period_a': c_p_a,
+        'mp_commodity_interval_a': c_i_a,
+        'mp_ag_1': a1,
+        'mp_ag_2': a2,
+        'mp_ag_3': a3
+    })
+    return data
+
+# ==========================================
+# CALLBACK 2: RESTORE SELECTIONS
+# ==========================================
+@callback(
+    [
+        Output("index_period", "value"),
+        Output("index_interval", "value"),
+        Output("commodity_period_m", "value"),
+        Output("commodity_interval_m", "value"),
+        Output("metal_1", "value"),
+        Output("metal_2", "value"),
+        Output("metal_3", "value"),
+        Output("commodity_period_e", "value"),
+        Output("commodity_interval_e", "value"),
+        Output("energy_1", "value"),
+        Output("energy_2", "value"),
+        Output("energy_3", "value"),
+        Output("commodity_period_a", "value"),
+        Output("commodity_interval_a", "value"),
+        Output("ag_1", "value"),
+        Output("ag_2", "value"),
+        Output("ag_3", "value")
+    ],
+    Input('session-store', 'data'),
+    [
+        State("index_period", "value"),
+        State("index_interval", "value"),
+        State("commodity_period_m", "value"),
+        State("commodity_interval_m", "value"),
+        State("metal_1", "value"),
+        State("metal_2", "value"),
+        State("metal_3", "value"),
+        State("commodity_period_e", "value"),
+        State("commodity_interval_e", "value"),
+        State("energy_1", "value"),
+        State("energy_2", "value"),
+        State("energy_3", "value"),
+        State("commodity_period_a", "value"),
+        State("commodity_interval_a", "value"),
+        State("ag_1", "value"),
+        State("ag_2", "value"),
+        State("ag_3", "value")
+    ],
+    prevent_initial_call=True
+)
+def restore_market_pulse_selections(stored_data, cur_idx_p, cur_idx_i, cur_c_p_m, cur_c_i_m, cur_m1, cur_m2, cur_m3,
+                                    cur_c_p_e, cur_c_i_e, cur_e1, cur_e2, cur_e3, cur_c_p_a, cur_c_i_a, cur_a1, cur_a2, cur_a3):
+    if not stored_data or not isinstance(stored_data, dict):
+        return [no_update] * 17
+    
+    def get_update_val(stored_key, current_val):
+        if stored_key not in stored_data:
+            return no_update
+        val = stored_data[stored_key]
+        if val == current_val:
+            return no_update
+        return val
+
+    return (
+        get_update_val('mp_index_period', cur_idx_p),
+        get_update_val('mp_index_interval', cur_idx_i),
+        get_update_val('mp_commodity_period_m', cur_c_p_m),
+        get_update_val('mp_commodity_interval_m', cur_c_i_m),
+        get_update_val('mp_metal_1', cur_m1),
+        get_update_val('mp_metal_2', cur_m2),
+        get_update_val('mp_metal_3', cur_m3),
+        get_update_val('mp_commodity_period_e', cur_c_p_e),
+        get_update_val('mp_commodity_interval_e', cur_c_i_e),
+        get_update_val('mp_energy_1', cur_e1),
+        get_update_val('mp_energy_2', cur_e2),
+        get_update_val('mp_energy_3', cur_e3),
+        get_update_val('mp_commodity_period_a', cur_c_p_a),
+        get_update_val('mp_commodity_interval_a', cur_c_i_a),
+        get_update_val('mp_ag_1', cur_a1),
+        get_update_val('mp_ag_2', cur_a2),
+        get_update_val('mp_ag_3', cur_a3)
+    )
 
 

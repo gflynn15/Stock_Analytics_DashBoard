@@ -7,6 +7,7 @@ from dash import html
 import os
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
+from dash import no_update
 
 load_dotenv()
 render_url = os.getenv("render_db_url")
@@ -210,3 +211,15 @@ def data_query(metrics_list, period, interval):
     except Exception as e:
         print(f"Failed to Load {e}")
     
+    ###=============================Storage helper function================================###
+def sync_state(stored_data, asset_id, period_id, interval_id):
+    """Helper to restore values from stored_data to specific component IDs."""
+    if not stored_data:
+        return no_update, no_update, no_update
+    return (
+        stored_data.get('assets'), 
+        stored_data.get('period'), 
+        stored_data.get('interval')
+    )
+
+

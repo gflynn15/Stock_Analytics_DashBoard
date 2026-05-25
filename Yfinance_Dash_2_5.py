@@ -2,10 +2,14 @@ import dash
 from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
-# 1. Import App, Server, and Cache from our new initialization file
+##Importing the server and app initialization##
 from app_init import app, server, cache
 
 app.layout = dbc.Container([    
+    ##Adding in browser storage logic to maintain user selections##
+    dcc.Location(id='url', refresh=False),
+    dcc.Store(id='session-store', storage_type='session'),
+    
     dbc.Row([
         dbc.Row([dbc.Col([
                         dbc.Button("Menu", id="menu-button", color="primary", size="lg", className="m-2")], width=12),

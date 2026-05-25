@@ -11,7 +11,7 @@
 # %%
 import numpy as np
 import dash
-from dash import Dash, html, dcc, callback, Output, Input, dash_table
+from dash import Dash, html, dcc, callback, Output, Input, dash_table, State, no_update
 from flask_caching import Cache
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
@@ -39,6 +39,7 @@ from sqlalchemy import text
 import sqlite3
 import psycopg2
 from dotenv import load_dotenv
+from app_functions import sync_state
 ##Importing cloud url
 load_dotenv()
 render_url = os.getenv("render_db_url")
@@ -687,3 +688,114 @@ def update_lag_dropdown_consolidated(metric1, metric2):
     # Filter out None and return options
     selected_metrics = [m for m in [metric1, metric2] if m]
     return [{"label": x, "value": x} for x in selected_metrics]
+
+from dash import no_update
+
+# ==========================================
+# CALLBACK 1: STORE SELECTIONS
+# ==========================================
+@callback(
+    Output('session-store', 'data', allow_duplicate=True),
+    [
+        Input("metrics_list", "value"),
+        Input("period1_drop", "value"), 
+        Input("interval1_drop", "value"),
+        Input("lag_feature_selector", "value"),
+        Input("lag_slider", "value"),
+        Input("scatter&line_input1", "value"),
+        Input("scatter&line_input2", "value"),
+        Input("period2_drop", "value"),
+        Input("interval2_drop", "value"),
+        Input("lag_feature_selector2", "value"),
+        Input("lag_slider2", "value"),
+        Input("rolling_win", "value")
+    ],
+    State('session-store', 'data'),
+    prevent_initial_call=True
+)
+def store_macro_health_selections(metrics1, p1, i1, lag_f1, lag_v1, scat1, scat2, p2, i2, lag_f2, lag_v2, roll_win, stored_data):
+    data = stored_data or {}
+    
+    # We use unique dictionary keys for this specific page
+    # so they don't accidentally overwrite data from other pages
+    data.update({
+        'mh_metrics1': metrics1,
+        'mh_p1': p1,
+        'mh_i1': i1,
+        'mh_lag_f1': lag_f1,
+        'mh_lag_v1': lag_v1,
+        'mh_scat1': scat1,
+        'mh_scat2': scat2,
+        'mh_p2': p2,
+        'mh_i2': i2,
+        'mh_lag_f2': lag_f2,
+        'mh_lag_v2': lag_v2,
+        'mh_roll_win': roll_win
+    })
+    return data
+
+# ==========================================
+# CALLBACK 2: RESTORE SELECTIONS
+# ==========================================
+@callback(
+    [
+        Output("metrics_list", "value"),
+        Output("period1_drop", "value"), 
+        Output("interval1_drop", "value"),
+        Output("lag_feature_selector", "value"),
+        Output("lag_slider", "value"),
+        Output("scatter&line_input1", "value"),
+        Output("scatter&line_input2", "value"),
+        Output("period2_drop", "value"),
+        Output("interval2_drop", "value"),
+        Output("lag_feature_selector2", "value"),
+        Output("lag_slider2", "value"),
+        Output("rolling_win", "value")
+    ],
+    Input('session-store', 'data'),
+    [
+        State("metrics_list", "value"),
+        State("period1_drop", "value"), 
+        State("interval1_drop", "value"),
+        State("lag_feature_selector", "value"),
+        State("lag_slider", "value"),
+        State("scatter&line_input1", "value"),
+        State("scatter&line_input2", "value"),
+        State("period2_drop", "value"),
+        State("interval2_drop", "value"),
+        State("lag_feature_selector2", "value"),
+        State("lag_slider2", "value"),
+        State("rolling_win", "value")
+    ],
+    prevent_initial_call=True
+)
+def restore_macro_health_selections(stored_data, current_metrics1, current_p1, current_i1, current_lag_f1, current_lag_v1,
+                                    current_scat1, current_scat2, current_p2, current_i2, current_lag_f2, current_lag_v2, current_roll_win):
+    # If the user just loaded the app, do nothing and let the layout defaults load
+    if not stored_data or not isinstance(stored_data, dict):
+        return [no_update] * 12 # This is a clean way to return 12 no_updates
+    
+    # Helper to only update changed values and ignore missing keys to avoid overwriting layout defaults
+    def get_update_val(stored_key, current_val):
+        if stored_key not in stored_data:
+            return no_update
+        val = stored_data[stored_key]
+        if val == current_val:
+            return no_update
+        return val
+
+    # Return the values in the EXACT order the Outputs are listed above
+    return (
+        get_update_val('mh_metrics1', current_metrics1),
+        get_update_val('mh_p1', current_p1),
+        get_update_val('mh_i1', current_i1),
+        get_update_val('mh_lag_f1', current_lag_f1),
+        get_update_val('mh_lag_v1', current_lag_v1),
+        get_update_val('mh_scat1', current_scat1),
+        get_update_val('mh_scat2', current_scat2),
+        get_update_val('mh_p2', current_p2),
+        get_update_val('mh_i2', current_i2),
+        get_update_val('mh_lag_f2', current_lag_f2),
+        get_update_val('mh_lag_v2', current_lag_v2),
+        get_update_val('mh_roll_win', current_roll_win)
+    )
