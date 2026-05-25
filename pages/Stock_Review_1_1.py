@@ -605,7 +605,7 @@ def store_stock_review_selections(ticker, period, intervals, stored_data):
         State("period", "value"),
         State("intervals", "value")
     ],
-    prevent_initial_call=True
+    #prevent_initial_call=True
 )
 def restore_stock_review_selections(stored_data, current_ticker, current_period, current_intervals):
     if not stored_data or not isinstance(stored_data, dict):

@@ -767,7 +767,7 @@ def store_macro_health_selections(metrics1, p1, i1, lag_f1, lag_v1, scat1, scat2
         State("lag_slider2", "value"),
         State("rolling_win", "value")
     ],
-    prevent_initial_call=True
+    #prevent_initial_call=True
 )
 def restore_macro_health_selections(stored_data, current_metrics1, current_p1, current_i1, current_lag_f1, current_lag_v1,
                                     current_scat1, current_scat2, current_p2, current_i2, current_lag_f2, current_lag_v2, current_roll_win):

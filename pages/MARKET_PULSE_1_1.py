@@ -646,7 +646,7 @@ def store_market_pulse_selections(idx_p, idx_i, c_p_m, c_i_m, m1, m2, m3, c_p_e,
         State("ag_2", "value"),
         State("ag_3", "value")
     ],
-    prevent_initial_call=True
+    #prevent_initial_call=True
 )
 def restore_market_pulse_selections(stored_data, cur_idx_p, cur_idx_i, cur_c_p_m, cur_c_i_m, cur_m1, cur_m2, cur_m3,
                                     cur_c_p_e, cur_c_i_e, cur_e1, cur_e2, cur_e3, cur_c_p_a, cur_c_i_a, cur_a1, cur_a2, cur_a3):
