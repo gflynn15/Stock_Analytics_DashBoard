@@ -207,7 +207,7 @@ layout = dbc.Container([
         ], xs=12, md=4, lg=2),
         dbc.Col([
             html.Label('Select Period', style={"fontSize":14}),
-            dcc.Dropdown(period, '1Y', id='period', clearable=False, style={"fontSize":14})
+            dcc.Dropdown(period, '1YE', id='period', clearable=False, style={"fontSize":14})
         ], xs=12, md=4, lg=2),
         dbc.Col([
             html.Label('Select Interval', style={"fontSize":14}),
