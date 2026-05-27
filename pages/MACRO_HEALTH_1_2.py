@@ -402,8 +402,9 @@ layout = dbc.Container([
 )
 def data_recovery_call(macros, period1, interval1, lag_features, lag_value):
     # 1. Handle empty inputs: if nothing is selected, return an empty figure
-    if not macros:
-        return go.Figure()
+    if not macros or period1 is None or interval1 is None:
+        from dash.exceptions import PreventUpdate
+        raise PreventUpdate
     else:
         indi_df = data_query(macros, period1, interval1).pct_change().dropna()
         
@@ -496,8 +497,9 @@ def update_lag_dropdown(selected_metrics):
 )
 def scatter_line(metric1, metric2, period2, interval2, lag_features2, lag_value2, rolling_win):
     # 1. Handle empty inputs: if nothing is selected, return an empty figure
-    if not metric1 or not metric2:
-        return go.Figure(), go.Figure(), go.Figure(), []
+    if any(x is None for x in [metric1, metric2, period2, interval2]):
+        from dash.exceptions import PreventUpdate
+        raise PreventUpdate
     metrics_list = [metric1, metric2]
     indi_df = data_query(metrics_list, period2, interval2).pct_change().dropna()
     ## Adding in lag feature logic and slider variable
@@ -714,6 +716,10 @@ from dash import no_update
     prevent_initial_call=True
 )
 def store_macro_health_selections(metrics1, p1, i1, lag_f1, lag_v1, scat1, scat2, p2, i2, lag_f2, lag_v2, roll_win, stored_data):
+    if any(x is None for x in [metrics1, p1, i1, scat1, scat2, p2, i2, roll_win]):
+        from dash.exceptions import PreventUpdate
+        raise PreventUpdate
+
     data = stored_data or {}
     
     # We use unique dictionary keys for this specific page
@@ -782,7 +788,7 @@ def restore_macro_health_selections(stored_data, current_metrics1, current_p1, c
     def get_update_val(stored_key, current_val):
         val = stored_data.get(stored_key)
         # If the stored value matches the current value, do nothing (prevents infinite loops)
-        if val == current_val:
+        if val is None or val == current_val:
             return no_update
         return val
 

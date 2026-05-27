@@ -406,6 +406,10 @@ layout = dbc.Container([
     Input("index_interval", "value")
 )
 def index_trend_chart(period, interval):
+    if period is None or interval is None:
+        from dash.exceptions import PreventUpdate
+        raise PreventUpdate
+
     indices = [ '^GSPC-SP500','^DJI-DowJones','^IXIC-NasDaq']
     closing_prices = data_query(indices, period, interval).dropna(axis=0)
     ##Creating Price Change Variables From Previous Data Point
@@ -450,6 +454,10 @@ def index_trend_chart(period, interval):
     Input("metal_3", "value")
 )
 def metals_trend_charts(period, interval, metal_1, metal_2, metal_3):
+    if any(x is None for x in [period, interval, metal_1, metal_2, metal_3]):
+        from dash.exceptions import PreventUpdate
+        raise PreventUpdate
+
     metals_list = [metal_1, metal_2, metal_3]
     metals_closing = data_query(metals_list, period, interval).dropna(axis=0)
     ##Getting Price Changes
@@ -491,6 +499,10 @@ def metals_trend_charts(period, interval, metal_1, metal_2, metal_3):
     Input("energy_3", "value")
 )
 def energy_trend_charts(period, interval, energy_1, energy_2, energy_3):
+    if any(x is None for x in [period, interval, energy_1, energy_2, energy_3]):
+        from dash.exceptions import PreventUpdate
+        raise PreventUpdate
+
     energy_list = [energy_1, energy_2, energy_3]
     energy_closing = data_query(energy_list, period, interval).dropna(axis=0)
     ##Getting Price Changes
@@ -531,6 +543,10 @@ def energy_trend_charts(period, interval, energy_1, energy_2, energy_3):
     Input("ag_3", "value")
 )
 def ag_trend_charts(period, interval, ag_1, ag_2, ag_3):
+    if any(x is None for x in [period, interval, ag_1, ag_2, ag_3]):
+        from dash.exceptions import PreventUpdate
+        raise PreventUpdate
+
     ag_list = [ag_1, ag_2, ag_3]
     ag_closing = data_query(ag_list, period, interval).dropna(axis=0)
     ##Getting Price Changes
@@ -581,6 +597,10 @@ def ag_trend_charts(period, interval, ag_1, ag_2, ag_3):
     prevent_initial_call=True
 )
 def store_market_pulse_selections(idx_p, idx_i, c_p_m, c_i_m, m1, m2, m3, c_p_e, c_i_e, e1, e2, e3, c_p_a, c_i_a, a1, a2, a3, stored_data):
+    if any(x is None for x in [idx_p, idx_i, c_p_m, c_i_m, m1, m2, m3, c_p_e, c_i_e, e1, e2, e3, c_p_a, c_i_a, a1, a2, a3]):
+        from dash.exceptions import PreventUpdate
+        raise PreventUpdate
+
     data = stored_data or {}
     data.update({
         'mp_index_period': idx_p,
@@ -657,7 +677,7 @@ def restore_market_pulse_selections(stored_data, cur_idx_p, cur_idx_i, cur_c_p_m
     
     def get_update_val(stored_key, current_val):
         val = stored_data.get(stored_key)
-        if val == current_val:
+        if val is None or val == current_val:
             return no_update
         return val
 

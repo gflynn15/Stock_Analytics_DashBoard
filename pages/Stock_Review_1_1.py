@@ -324,6 +324,10 @@ layout = dbc.Container([
     Input("intervals", "value"),
 )
 def trend_chart(ticker: str, period: str, intervals: str):
+    if ticker is None or period is None or intervals is None:
+        from dash.exceptions import PreventUpdate
+        raise PreventUpdate
+
     news_query_conversion = ticker.split("-")[0]
     with engine.connect() as conn:
         articles_df = pd.read_sql(text(f"""SELECT * FROM "STOCK_NEWS_TABLE" WHERE "COMPANY" = '{news_query_conversion}'"""), con=conn)
@@ -582,6 +586,10 @@ def trend_chart(ticker: str, period: str, intervals: str):
     prevent_initial_call=True
 )
 def store_stock_review_selections(ticker, period, intervals, stored_data):
+    if ticker is None or period is None or intervals is None:
+        from dash.exceptions import PreventUpdate
+        raise PreventUpdate
+        
     data = stored_data or {}
     data.update({
         'sr_ticker': ticker,
@@ -613,7 +621,7 @@ def restore_stock_review_selections(stored_data, current_ticker, current_period,
     
     def get_update_val(stored_key, current_val):
         val = stored_data.get(stored_key)
-        if val == current_val:
+        if val is None or val == current_val:
             return no_update
         return val
 
